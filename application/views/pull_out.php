@@ -124,7 +124,7 @@
                                 <th style="width: 12%; vertical-align: middle;">PROCESSING FEE</th>
                                 <th style="width: 12%; vertical-align: middle;">TICKET AMT</th>
                                 <th style="width: 12%; vertical-align: middle;">SHARING PROFIT</th>
-                                <th style="width: 12%; vertical-align: middle;">PULL OUT 2%</th>
+                                <th style="width: 12%; vertical-align: middle;">PONDO PULL OUT FOR EXPANSION</th>
                                 <th style="width: 12%; vertical-align: middle;">PULL OUT CAPITAL</th>
                                 <th style="width: 12%; vertical-align: middle;">TOTAL AMT</th>
                                 <th style="width: 20%; vertical-align: middle; text-align: center;">ACTION</th>
