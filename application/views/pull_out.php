@@ -96,7 +96,7 @@
 
                         <div class="total-box">
                             <div class="total-label">
-                                <i class="bx bx-bar-chart me-1"></i> Pull Out 2%
+                                <i class="bx bx-bar-chart me-1"></i> Pondo Pull Out for Expansion
                             </div>
                             <div class="total-value" id="totalPullOut">₱0.00</div>
                         </div>
