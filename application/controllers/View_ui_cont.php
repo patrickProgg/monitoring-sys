@@ -65,55 +65,21 @@ class View_ui_cont extends CI_Controller
         // // Subquery to sum payments per loan
         // $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) AS p';
 
-        // $data['total_loan_amt'] = $this->db
-        //     ->select_sum('tbl_loan.total_amt')
-        //     ->from('tbl_loan')
-        //     ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-        //     ->get()
-        //     ->row()
-        //     ->total_amt ?: 0;
-
-        // $data['total_capital_loan_amt'] = $this->db
-        //     ->select_sum('tbl_loan.capital_amt')
-        //     ->from('tbl_loan')
-        //     ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-        //     ->get()
-        //     ->row()
-        //     ->capital_amt ?: 0;
-
         $data['total_loan_amt'] = $this->db
-            ->select("
-                SUM(
-                    CASE
-                        WHEN tbl_loan.status = 'overdue'
-                            THEN IFNULL(tbl_payment.amt, 0)
-                        ELSE tbl_loan.total_amt
-                    END
-                ) AS total_loan_amt
-            ", false)
+            ->select_sum('tbl_loan.total_amt')
             ->from('tbl_loan')
             ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-            ->join('tbl_payment', 'tbl_payment.loan_id = tbl_loan.id', 'left')
             ->get()
             ->row()
-            ->total_loan_amt ?: 0;
+            ->total_amt ?: 0;
 
         $data['total_capital_loan_amt'] = $this->db
-            ->select("
-                SUM(
-                    CASE
-                        WHEN tbl_loan.status = 'overdue'
-                            THEN IFNULL(tbl_payment.amt, 0)
-                        ELSE tbl_loan.capital_amt
-                    END
-                ) AS total_capital_loan_amt
-            ", false)
+            ->select_sum('tbl_loan.capital_amt')
             ->from('tbl_loan')
             ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-            ->join('tbl_payment', 'tbl_payment.loan_id = tbl_loan.id', 'left')
             ->get()
             ->row()
-            ->total_capital_loan_amt ?: 0;
+            ->capital_amt ?: 0;
 
         $data['total_added_loan_amt'] = $this->db
             ->select_sum('tbl_loan.added_amt')
