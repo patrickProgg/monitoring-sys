@@ -81,48 +81,6 @@ class View_ui_cont extends CI_Controller
         //     ->row()
         //     ->capital_amt ?: 0;
 
-        $data['total_loan_amt'] = $this->db
-            ->select("
-                SUM(
-                    CASE
-                        WHEN tbl_loan.status = 'overdue' THEN 
-                            (tbl_loan.total_amt - COALESCE(
-                                (SELECT SUM(amt) FROM tbl_payment 
-                                WHERE loan_id = tbl_loan.id 
-                                AND payment_for BETWEEN DATE_ADD(tbl_loan.start_date, INTERVAL 1 DAY) AND tbl_loan.due_date), 0)
-                            )
-                        ELSE 
-                            tbl_loan.total_amt
-                    END
-                ) AS total_loan_amt
-            ", false)
-            ->from('tbl_loan')
-            ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-            ->get()
-            ->row()
-            ->total_loan_amt ?? 0;
-
-        $data['total_capital_loan_amt'] = $this->db
-            ->select("
-                SUM(
-                    CASE
-                        WHEN tbl_loan.status = 'overdue' THEN 
-                            (tbl_loan.total_amt - COALESCE(
-                                (SELECT SUM(amt) FROM tbl_payment 
-                                WHERE loan_id = tbl_loan.id 
-                                AND payment_for BETWEEN DATE_ADD(tbl_loan.start_date, INTERVAL 1 DAY) AND tbl_loan.due_date), 0)
-                            )
-                        ELSE 
-                            tbl_loan.capital_amt
-                    END
-                ) AS total_capital_loan_amt
-            ", false)
-            ->from('tbl_loan')
-            ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-            ->get()
-            ->row()
-            ->total_capital_loan_amt ?? 0;
-
         $data['total_receivables'] = $this->db
             ->select("
                 SUM(remaining_balance) AS total_receivables
@@ -145,6 +103,7 @@ class View_ui_cont extends CI_Controller
             ->get()
             ->row()
             ->total_receivables ?? 0;
+            
 
         $sql = "
             WITH loan_identification AS (
