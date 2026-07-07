@@ -123,6 +123,29 @@ class View_ui_cont extends CI_Controller
             ->row()
             ->total_capital_loan_amt ?? 0;
 
+        $data['total_receivables'] = $this->db
+            ->select("
+                SUM(remaining_balance) AS total_receivables
+            ", false)
+                    ->from("(
+                SELECT 
+                    l.id,
+                    l.total_amt - COALESCE(
+                        (SELECT SUM(p2.amt) FROM tbl_payment p2 
+                        WHERE p2.loan_id = l.id 
+                        AND p2.payment_for BETWEEN DATE_ADD(l.start_date, INTERVAL 1 DAY) AND l.due_date),
+                        0
+                    ) AS remaining_balance
+                FROM 
+                    tbl_loan l
+                WHERE 
+                    l.status = 'ongoing'
+            ) AS subquery")
+            ->where('remaining_balance > 0', NULL, false)
+            ->get()
+            ->row()
+            ->total_receivables ?? 0;
+
         $data['total_added_loan_amt'] = $this->db
             ->select_sum('tbl_loan.added_amt')
             ->from('tbl_loan')
