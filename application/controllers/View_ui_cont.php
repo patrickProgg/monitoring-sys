@@ -65,21 +65,21 @@ class View_ui_cont extends CI_Controller
         // // Subquery to sum payments per loan
         // $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) AS p';
 
-        //$data['total_loan_amt'] = $this->db
-        //    ->select_sum('tbl_loan.total_amt')
-        //    ->from('tbl_loan')
-        //    ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-        //    ->get()
-        //    ->row()
-        //    ->total_amt ?: 0;
+        $data['total_loan_amt'] = $this->db
+            ->select_sum('tbl_loan.total_amt')
+            ->from('tbl_loan')
+            ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
+            ->get()
+            ->row()
+            ->total_amt ?: 0;
 //
-        //$data['total_capital_loan_amt'] = $this->db
-        //    ->select_sum('tbl_loan.capital_amt')
-        //    ->from('tbl_loan')
-        //    ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
-        //    ->get()
-        //    ->row()
-        //    ->capital_amt ?: 0;
+        $data['total_capital_loan_amt'] = $this->db
+            ->select_sum('tbl_loan.capital_amt')
+            ->from('tbl_loan')
+            ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
+            ->get()
+            ->row()
+            ->capital_amt ?: 0;
 
         $data['total_receivables'] = $this->db
             ->select("
@@ -105,46 +105,46 @@ class View_ui_cont extends CI_Controller
             ->total_receivables ?? 0;
             
 
-         $sql = "
-             WITH loan_identification AS (
-                 SELECT 
-                     l.id,
-                     l.cl_id,
-                     l.capital_amt,
-                     l.total_amt,
-                     l.status,
-                     l.start_date,
-                     l.due_date,
-                     CASE 
-                         WHEN LAG(l.id) OVER (PARTITION BY l.cl_id ORDER BY l.id) IS NULL THEN 'NEW_MONEY'
-                         WHEN LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) = 'completed' THEN 'NEW_MONEY'
-                         ELSE 'RESTRUCTURED'
-                     END AS loan_type
-                 FROM 
-                     tbl_loan l
-                 WHERE 
-                     l.status IN ('ongoing', 'completed', 'overdue')
-             ),
-             client_profit AS (
-                 SELECT 
-                     li.cl_id,
-                     COALESCE(SUM(p.amt), 0) - SUM(DISTINCT CASE WHEN li.loan_type = 'NEW_MONEY' THEN li.capital_amt ELSE 0 END) AS profit
-                 FROM 
-                     loan_identification li
-                 LEFT JOIN 
-                     tbl_payment p ON li.id = p.loan_id 
-                     AND p.payment_for BETWEEN DATE_ADD(li.start_date, INTERVAL 1 DAY) AND li.due_date
-                 GROUP BY 
-                     li.cl_id
-             )
-             SELECT 
-                 SUM(profit) AS grand_total_profit
-             FROM 
-                 client_profit;
-         ";
+        $sql = "
+            WITH loan_identification AS (
+                SELECT 
+                    l.id,
+                    l.cl_id,
+                    l.capital_amt,
+                    l.total_amt,
+                    l.status,
+                    l.start_date,
+                    l.due_date,
+                    CASE 
+                        WHEN LAG(l.id) OVER (PARTITION BY l.cl_id ORDER BY l.id) IS NULL THEN 'NEW_MONEY'
+                        WHEN LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) = 'completed' THEN 'NEW_MONEY'
+                        ELSE 'RESTRUCTURED'
+                    END AS loan_type
+                FROM 
+                    tbl_loan l
+                WHERE 
+                    l.status IN ('ongoing', 'completed', 'overdue')
+            ),
+            client_profit AS (
+                SELECT 
+                    li.cl_id,
+                    COALESCE(SUM(p.amt), 0) - SUM(DISTINCT CASE WHEN li.loan_type = 'NEW_MONEY' THEN li.capital_amt ELSE 0 END) AS profit
+                FROM 
+                    loan_identification li
+                LEFT JOIN 
+                    tbl_payment p ON li.id = p.loan_id 
+                    AND p.payment_for BETWEEN DATE_ADD(li.start_date, INTERVAL 1 DAY) AND li.due_date
+                GROUP BY 
+                    li.cl_id
+            )
+            SELECT 
+                SUM(profit) AS grand_total_profit
+            FROM 
+                client_profit;
+        ";
 
-         $query = $this->db->query($sql);
-         $data['grand_total_profit'] = $query->row()->grand_total_profit ?? 0;
+        $query = $this->db->query($sql);
+        $data['grand_total_profit'] = $query->row()->grand_total_profit ?? 0;
 
         $data['total_added_loan_amt'] = $this->db
             ->select_sum('tbl_loan.added_amt')
