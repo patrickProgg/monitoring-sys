@@ -46,53 +46,36 @@ class Monitoring_cont extends CI_Controller
 
         $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) as p';
 
-        // CTE for original loans only
-        $original_loans = "
-        WITH loan_data AS (
-            SELECT 
-                l.id,
-                l.cl_id,
-                l.capital_amt,
-                l.total_amt,
-                l.due_date,
-                l.status,
-                LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
-            FROM 
-                tbl_loan l
-        )
-        SELECT 
-            id,
-            cl_id,
-            capital_amt,
-            total_amt,
-            due_date,
-            status
-        FROM loan_data
-        WHERE prev_status IS NULL OR prev_status = 'completed'
-    ";
-
         $this->db->select('
-        a.id,
-        a.acc_no,
-        a.full_name,
-        a.address,
-        a.date_added,
-        a.contact_no_1,
-        a.contact_no_2,
-        CONCAT(a.contact_no_1, " | ", a.contact_no_2) AS contact_no,
-        COUNT(b.id) AS loan_count,
-        COALESCE(SUM(
-            CASE 
-                WHEN b.status = "overdue" THEN COALESCE(p.payment_total, 0)
-                ELSE b.capital_amt
-            END
-        ), 0) AS total_loan_amount,
-        MAX(b.due_date) AS latest_due_date
-    ');
+            a.id,
+            a.acc_no,
+            a.full_name,
+            a.address,
+            a.date_added,
+            a.contact_no_1,
+            a.contact_no_2,
+            CONCAT(a.contact_no_1, " | ", a.contact_no_2) AS contact_no,
+            COUNT(b.id) AS loan_count,
+            COALESCE(SUM(
+                CASE 
+                    WHEN b.status = "overdue" THEN COALESCE(p.payment_total, 0)
+                    ELSE b.capital_amt
+                END
+            ), 0) AS total_loan_amount,
+            MAX(b.due_date) AS latest_due_date
+        ');
 
         $this->db->from('tbl_client as a');
-        $this->db->join("($original_loans) AS b", 'b.cl_id = a.id', 'left');
+        $this->db->join('tbl_loan as b', 'b.cl_id = a.id', 'left');
         $this->db->join($subquery, 'p.loan_id = b.id', 'left');
+
+        if ($history) {
+            $this->db->where('a.status', '1');
+        } else {
+            $this->db->where('a.status', '0');
+        }
+
+        $this->db->group_by('a.id');
 
         if ($history) {
             $this->db->where('a.status', '1');
@@ -112,6 +95,7 @@ class Monitoring_cont extends CI_Controller
         }
 
         $this->db->group_by('a.id');
+
         $this->db->order_by($orderColumn, $orderDir);
 
         $subQuery = clone $this->db;
