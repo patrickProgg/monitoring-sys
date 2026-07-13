@@ -44,75 +44,103 @@ class Monitoring_cont extends CI_Controller
 
         $orderColumn = $columns[$orderColumnIndex];
 
-        $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) as p';
+        // Build the main query with CTE for original loans
+        $sql = "
+        WITH original_loans AS (
+            SELECT 
+                l.id,
+                l.cl_id,
+                l.capital_amt,
+                l.total_amt,
+                l.due_date,
+                l.status,
+                COALESCE(p.payment_total, 0) AS payment_total
+            FROM 
+                tbl_loan l
+            LEFT JOIN 
+                (SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) p ON p.loan_id = l.id
+            WHERE 
+                LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) IS NULL 
+                OR LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) = 'completed'
+        )
+        SELECT 
+            a.id,
+            a.acc_no,
+            a.full_name,
+            a.address,
+            a.date_added,
+            a.contact_no_1,
+            a.contact_no_2,
+            CONCAT(a.contact_no_1, ' | ', a.contact_no_2) AS contact_no,
+            COUNT(ol.id) AS loan_count,
+            COALESCE(SUM(
+                CASE 
+                    WHEN ol.status = 'overdue' THEN ol.payment_total
+                    ELSE ol.capital_amt
+                END
+            ), 0) AS total_loan_amount,
+            MAX(ol.due_date) AS latest_due_date
+        FROM 
+            tbl_client a
+        LEFT JOIN 
+            original_loans ol ON ol.cl_id = a.id
+        WHERE 
+            a.status = ?
+    ";
 
-        $this->db->select('
-    a.id,
-    a.acc_no,
-    a.full_name,
-    a.address,
-    a.date_added,
-    a.contact_no_1,
-    a.contact_no_2,
-    CONCAT(a.contact_no_1, " | ", a.contact_no_2) AS contact_no,
-    COUNT(b.id) AS loan_count,
-    COALESCE(SUM(
-        CASE 
-            WHEN b.status = "overdue" THEN COALESCE(p.payment_total, 0)
-            ELSE b.capital_amt
-        END
-    ), 0) AS total_loan_amount,
-    MAX(b.due_date) AS latest_due_date
-');
-
-        $this->db->from('tbl_client as a');
-        $this->db->join('(
-    SELECT 
-        l.*,
-        LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
-    FROM tbl_loan l
-) AS b', 'b.cl_id = a.id AND (b.prev_status IS NULL OR b.prev_status = "completed")', 'left');
-        $this->db->join($subquery, 'p.loan_id = b.id', 'left');
-
-        $this->db->from('tbl_client as a');
-        $this->db->join('tbl_loan as b', 'b.cl_id = a.id', 'left');
-        $this->db->join($subquery, 'p.loan_id = b.id', 'left');
-
-        if ($history) {
-            $this->db->where('a.status', '1');
-        } else {
-            $this->db->where('a.status', '0');
+        // Add search filter
+        if (!empty($searchValue)) {
+            $sql .= " AND (
+            a.full_name LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.address LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.contact_no_1 LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.contact_no_2 LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.date_added LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.acc_no LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+        )";
         }
 
-        $this->db->group_by('a.id');
+        $sql .= " GROUP BY a.id, a.acc_no, a.full_name, a.address, a.date_added, a.contact_no_1, a.contact_no_2";
+        $sql .= " ORDER BY " . $orderColumn . " " . $orderDir;
+        $sql .= " LIMIT " . intval($length) . " OFFSET " . intval($start);
 
-        if ($history) {
-            $this->db->where('a.status', '1');
-        } else {
-            $this->db->where('a.status', '0');
-        }
+        // Get total count
+        $count_sql = "
+        WITH original_loans AS (
+            SELECT 
+                l.id,
+                l.cl_id
+            FROM 
+                tbl_loan l
+            WHERE 
+                LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) IS NULL 
+                OR LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) = 'completed'
+        )
+        SELECT 
+            COUNT(DISTINCT a.id) AS total
+        FROM 
+            tbl_client a
+        LEFT JOIN 
+            original_loans ol ON ol.cl_id = a.id
+        WHERE 
+            a.status = ?
+    ";
 
         if (!empty($searchValue)) {
-            $this->db->group_start();
-            $this->db->like('a.full_name', $searchValue);
-            $this->db->or_like('a.address', $searchValue);
-            $this->db->or_like('a.contact_no_1', $searchValue);
-            $this->db->or_like('a.contact_no_2', $searchValue);
-            $this->db->or_like('a.date_added', $searchValue);
-            $this->db->or_like('a.acc_no', $searchValue);
-            $this->db->group_end();
+            $count_sql .= " AND (
+            a.full_name LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.address LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.contact_no_1 LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.contact_no_2 LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.date_added LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR a.acc_no LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+        )";
         }
 
-        $this->db->group_by('a.id');
+        $count_query = $this->db->query($count_sql, array($history ? '1' : '0'));
+        $recordsFiltered = $count_query->row()->total ?? 0;
 
-        $this->db->order_by($orderColumn, $orderDir);
-
-        $subQuery = clone $this->db;
-        $recordsFiltered = $subQuery->get()->num_rows();
-
-        $this->db->limit($length, $start);
-
-        $query = $this->db->get();
+        $query = $this->db->query($sql, array($history ? '1' : '0'));
         $data = $query->result_array();
 
         echo json_encode([
