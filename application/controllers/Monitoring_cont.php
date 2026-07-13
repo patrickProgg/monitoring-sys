@@ -1576,22 +1576,19 @@ class Monitoring_cont extends CI_Controller
     public function get_bulk_payment()
     {
         $date = $this->input->post('date');
-        $datePlusOne = date('Y-m-d', strtotime($date . ' -1 day'));
-
-        // var_dump($datePlusOne);
-        // exit;
 
         $this->db->select('
-            a.id as loan_id,
-            a.start_date,
-            a.due_date,
-            b.id as client_id,
-            b.full_name,
-            b.acc_no
-        ');
+        a.id as loan_id,
+        a.start_date,
+        a.due_date,
+        b.id as client_id,
+        b.full_name,
+        b.acc_no
+    ');
         $this->db->from('tbl_loan as a');
         $this->db->join('tbl_client as b', 'b.id = a.cl_id');
-        $this->db->where("'$date' BETWEEN a.start_date AND a.due_date");
+        $this->db->where("'$date' >= DATE_ADD(a.start_date, INTERVAL 1 DAY)", NULL, FALSE);
+        $this->db->where("'$date' <= a.due_date", NULL, FALSE);
         $this->db->where('a.status', 'ongoing');
         $this->db->where('b.status !=', '1');
         $this->db->order_by('b.acc_no', 'ASC');
