@@ -232,6 +232,24 @@
             </span>
         </li>
 
+        <li style="border-bottom: 2px solid rgb(54, 162, 235, 1);">
+            <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
+            <span class="text">
+                <h3>₱ <?= number_format($total_interest, 2) ?>
+                </h3>
+                <p>Total Interest</p>
+            </span>
+        </li>
+
+        <li style="border-bottom: 2px solid rgb(54, 162, 235, 1);">
+            <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
+            <span class="text">
+                <h3>₱ <?= number_format($total_added, 2) ?>
+                </h3>
+                <p>Total Added</p>
+            </span>
+        </li>
+
         <a href="<?= base_url(); ?>pull_out" style="text-decoration: none; color: inherit;">
             <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
                 <!-- <i class='bx bx-log-out' style="background: rgba(153, 102, 255, 0.2); color: rgba(153, 102, 255, 1);"></i> -->
