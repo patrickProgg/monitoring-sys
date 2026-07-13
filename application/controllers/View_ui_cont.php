@@ -462,7 +462,7 @@ class View_ui_cont extends CI_Controller
             $data['loan_status_counts'][$row['status']] = $row['count'];
         }
 
-        // Get full_name for overdue clients only
+        // Get overdue clients with full_name
         $data['overdue_clients'] = $this->db
             ->select("c.full_name")
             ->from('tbl_loan l')

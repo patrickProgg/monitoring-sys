@@ -447,21 +447,30 @@
                                 </div>
                                 <div class="mt-2">
                                     <span class="badge badge-danger text-danger">Attention Needed</span>
-                                    <!-- Dropdown button -->
+                                    <!-- Button to show names -->
                                     <button type="button" class="btn btn-sm btn-outline-danger ml-2"
-                                        data-toggle="popover" data-placement="bottom" data-html="true"
-                                        data-title="<i class='fas fa-exclamation-triangle text-danger'></i> Overdue Clients"
-                                        data-content="<?php
-                                        if (!empty($overdue_clients)) {
-                                            $names = array_column($overdue_clients, 'full_name');
-                                            $unique_names = array_unique($names);
-                                            echo htmlspecialchars(implode('<br>', $unique_names));
-                                        } else {
-                                            echo 'No overdue clients';
-                                        }
-                                        ?>">
-                                        <i class="fas fa-chevron-down"></i> Show
+                                        onclick="showOverdueClients()">
+                                        <i class="fas fa-users"></i> View
                                     </button>
+                                </div>
+                                <!-- Hidden list of overdue clients -->
+                                <div id="overdueList" style="display: none; margin-top: 10px;">
+                                    <?php if (!empty($overdue_clients)): ?>
+                                        <?php
+                                        $names = array_column($overdue_clients, 'full_name');
+                                        $unique_names = array_unique($names);
+                                        ?>
+                                        <ul class="list-group">
+                                            <?php foreach ($unique_names as $name): ?>
+                                                <li class="list-group-item list-group-item-danger py-1">
+                                                    <i class="fas fa-user text-danger"></i>
+                                                    <?php echo $name; ?>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php else: ?>
+                                        <p class="text-success">✅ No overdue clients</p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -695,12 +704,14 @@
 
 <script>
 
-    $(document).ready(function () {
-        $('[data-toggle="popover"]').popover({
-            trigger: 'click',
-            html: true
-        });
-    });
+    function showOverdueClients() {
+        var list = document.getElementById('overdueList');
+        if (list.style.display === 'none' || list.style.display === '') {
+            list.style.display = 'block';
+        } else {
+            list.style.display = 'none';
+        }
+    }
 
     $(document).ready(function () {
         const ctx = document.getElementById('paymentChart').getContext('2d');
