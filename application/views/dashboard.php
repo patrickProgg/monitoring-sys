@@ -411,6 +411,29 @@
                 </div>
             </div>
 
+            <!-- <div class="col-md-12 d-flex mt-3">
+                <div class="card border-left-warning shadow h-100 w-100">
+                    <div class="card-body py-2 d-flex flex-column justify-content-between">
+                        <div class="row no-gutters align-items-center flex-grow-1">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    Overdue Loans
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    <?php echo $loan_status_counts['overdue'] ?? 0; ?>
+                                </div>
+                                <div class="mt-2">
+                                    <span class="badge badge-danger text-danger">Attention Needed</span>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
             <div class="col-md-12 d-flex mt-3">
                 <div class="card border-left-warning shadow h-100 w-100">
                     <div class="card-body py-2 d-flex flex-column justify-content-between">
@@ -424,6 +447,21 @@
                                 </div>
                                 <div class="mt-2">
                                     <span class="badge badge-danger text-danger">Attention Needed</span>
+                                    <!-- Dropdown button -->
+                                    <button type="button" class="btn btn-sm btn-outline-danger ml-2"
+                                        data-toggle="popover" data-placement="bottom" data-html="true"
+                                        data-title="<i class='fas fa-exclamation-triangle text-danger'></i> Overdue Clients"
+                                        data-content="<?php
+                                        if (!empty($overdue_clients)) {
+                                            $names = array_column($overdue_clients, 'full_name');
+                                            $unique_names = array_unique($names);
+                                            echo htmlspecialchars(implode('<br>', $unique_names));
+                                        } else {
+                                            echo 'No overdue clients';
+                                        }
+                                        ?>">
+                                        <i class="fas fa-chevron-down"></i> Show
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -656,6 +694,13 @@
 
 
 <script>
+
+    $(document).ready(function () {
+        $('[data-toggle="popover"]').popover({
+            trigger: 'click',
+            html: true
+        });
+    });
 
     $(document).ready(function () {
         const ctx = document.getElementById('paymentChart').getContext('2d');

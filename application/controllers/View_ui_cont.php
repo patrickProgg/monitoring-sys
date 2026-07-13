@@ -416,6 +416,29 @@ class View_ui_cont extends CI_Controller
         //     $data['loan_status_counts'][$row['status']] = $row['count'];
         // }
 
+        // $today = date('Y-m-d');
+
+        // $loan_status_data = $this->db
+        //     ->select("
+        //         CASE 
+        //             WHEN l.complete_date IS NOT NULL THEN 'completed'
+        //             WHEN l.due_date < '$today' THEN 'overdue'
+        //             ELSE COALESCE(l.status, 'active')
+        //         END as status,
+        //         COUNT(*) as count, 
+        //         SUM(l.total_amt) as total
+        //     ")
+        //     ->from('tbl_loan l')
+        //     ->join('tbl_client c', 'l.cl_id = c.id')
+        //     ->group_by('status')
+        //     ->get()
+        //     ->result_array();
+
+        // $data['loan_status_counts'] = [];
+        // foreach ($loan_status_data as $row) {
+        //     $data['loan_status_counts'][$row['status']] = $row['count'];
+        // }
+
         $today = date('Y-m-d');
 
         $loan_status_data = $this->db
@@ -438,6 +461,17 @@ class View_ui_cont extends CI_Controller
         foreach ($loan_status_data as $row) {
             $data['loan_status_counts'][$row['status']] = $row['count'];
         }
+
+        // Get full_name for overdue clients only
+        $data['overdue_names'] = $this->db
+            ->select("c.full_name")
+            ->from('tbl_loan l')
+            ->join('tbl_client c', 'l.cl_id = c.id')
+            ->where('l.due_date <', $today)
+            ->where('l.complete_date IS NULL')
+            ->group_by('c.full_name')
+            ->get()
+            ->result_array();
 
         // ========== END LOAN STATISTICS ==========
 
