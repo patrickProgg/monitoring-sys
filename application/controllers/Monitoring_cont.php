@@ -47,23 +47,32 @@ class Monitoring_cont extends CI_Controller
         $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) as p';
 
         $this->db->select('
-            a.id,
-            a.acc_no,
-            a.full_name,
-            a.address,
-            a.date_added,
-            a.contact_no_1,
-            a.contact_no_2,
-            CONCAT(a.contact_no_1, " | ", a.contact_no_2) AS contact_no,
-            COUNT(b.id) AS loan_count,
-            COALESCE(SUM(
-                CASE 
-                    WHEN b.status = "overdue" THEN COALESCE(p.payment_total, 0)
-                    ELSE b.capital_amt
-                END
-            ), 0) AS total_loan_amount,
-            MAX(b.due_date) AS latest_due_date
-        ');
+    a.id,
+    a.acc_no,
+    a.full_name,
+    a.address,
+    a.date_added,
+    a.contact_no_1,
+    a.contact_no_2,
+    CONCAT(a.contact_no_1, " | ", a.contact_no_2) AS contact_no,
+    COUNT(b.id) AS loan_count,
+    COALESCE(SUM(
+        CASE 
+            WHEN b.status = "overdue" THEN COALESCE(p.payment_total, 0)
+            ELSE b.capital_amt
+        END
+    ), 0) AS total_loan_amount,
+    MAX(b.due_date) AS latest_due_date
+');
+
+        $this->db->from('tbl_client as a');
+        $this->db->join('(
+    SELECT 
+        l.*,
+        LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+    FROM tbl_loan l
+) AS b', 'b.cl_id = a.id AND (b.prev_status IS NULL OR b.prev_status = "completed")', 'left');
+        $this->db->join($subquery, 'p.loan_id = b.id', 'left');
 
         $this->db->from('tbl_client as a');
         $this->db->join('tbl_loan as b', 'b.cl_id = a.id', 'left');
