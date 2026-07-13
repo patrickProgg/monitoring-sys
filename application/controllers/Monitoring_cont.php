@@ -1369,36 +1369,20 @@ class Monitoring_cont extends CI_Controller
         $startMonth = date('Y-m-01', strtotime($selectedDate));
         $endMonth = date('Y-m-t', strtotime($selectedDate));
 
-        $sql = "
-            WITH loan_data AS (
-                SELECT 
-                    l.capital_amt,
-                    l.added_amt,
-                    l.total_amt,
-                    l.start_date,
-                    LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
-                FROM 
-                    tbl_loan l
-                WHERE 
-                    l.start_date BETWEEN ? AND ?
-            ),
-            original_loans AS (
-                SELECT 
-                    capital_amt,
-                    added_amt,
-                    total_amt
-                FROM loan_data
-                WHERE prev_status IS NULL OR prev_status = 'completed'
-            )
-            SELECT 
-                SUM(capital_amt) AS total_capital_amt,
-                SUM(added_amt) AS total_added_amt,
-                SUM(total_amt) AS total_amt
-            FROM original_loans
-        ";
+        $this->db->select('
+            SUM(a.capital_amt) as total_capital_amt,
+            SUM(a.added_amt) as total_added_amt,
+            SUM(a.total_amt) as total_amt
+        ');
 
-        $query = $this->db->query($sql, array($startMonth, $endMonth));
-        return $query->row_array();
+        $this->db->from('tbl_loan as a');
+        $this->db->join('tbl_client as b', 'b.id = a.cl_id');
+
+        $this->db->where('a.start_date >=', $startMonth);
+        $this->db->where('a.start_date <=', $endMonth);
+        $this->db->where('b.status !=', '1');
+
+        return $this->db->get()->row_array();
     }
     private function get_monthly_data_payments($selectedDate)
     {
