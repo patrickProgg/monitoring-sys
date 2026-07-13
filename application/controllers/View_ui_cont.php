@@ -83,12 +83,14 @@ class View_ui_cont extends CI_Controller
 
         $data['total_payment'] = $this->db
             ->select("
-                COALESCE(
-                    (SELECT SUM(p.amt) 
-                    FROM tbl_payment p 
-                    WHERE p.loan_id = tbl_loan.id 
-                    AND p.payment_for BETWEEN DATE_ADD(tbl_loan.start_date, INTERVAL 1 DAY) AND tbl_loan.due_date),
-                    0
+                SUM(
+                    COALESCE(
+                        (SELECT SUM(p.amt) 
+                        FROM tbl_payment p 
+                        WHERE p.loan_id = tbl_loan.id 
+                        AND p.payment_for BETWEEN DATE_ADD(tbl_loan.start_date, INTERVAL 1 DAY) AND tbl_loan.due_date),
+                        0
+                    )
                 ) AS total_payment
             ", FALSE)
             ->from('tbl_loan')
