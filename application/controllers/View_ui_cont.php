@@ -463,7 +463,7 @@ class View_ui_cont extends CI_Controller
         }
 
         // Get full_name for overdue clients only
-        $data['overdue_names'] = $this->db
+        $data['overdue_clients'] = $this->db
             ->select("c.full_name")
             ->from('tbl_loan l')
             ->join('tbl_client c', 'l.cl_id = c.id')
