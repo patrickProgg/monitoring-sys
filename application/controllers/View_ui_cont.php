@@ -697,17 +697,28 @@ class View_ui_cont extends CI_Controller
             $year = date('Y');
         }
 
-        // Monthly data for chart
-        $this->db->select(
-            "MONTH(a.start_date) as month, SUM(a.capital_amt) as total"
+        // Monthly data for chart - only original capitals (restructured logic)
+        $sql = "
+        WITH loan_data AS (
+            SELECT 
+                l.capital_amt,
+                l.start_date,
+                LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+            FROM 
+                tbl_loan l
+            WHERE 
+                YEAR(l.start_date) = ?
         )
-            ->from('tbl_loan as a')
-            ->join('tbl_client as b', 'b.id = a.cl_id', 'left')
-            ->where('YEAR(a.start_date)', $year)
-            ->group_by('MONTH(a.start_date)')
-            ->order_by('MONTH(a.start_date)');
+        SELECT 
+            MONTH(start_date) AS month,
+            SUM(capital_amt) AS total
+        FROM loan_data
+        WHERE prev_status IS NULL OR prev_status = 'completed'
+        GROUP BY MONTH(start_date)
+        ORDER BY MONTH(start_date)
+    ";
 
-        $query = $this->db->get();
+        $query = $this->db->query($sql, array($year));
         $result = $query->result_array();
 
         // Prepare data for all 12 months
@@ -719,7 +730,7 @@ class View_ui_cont extends CI_Controller
         }
 
         // Get year total using CTE (original capitals only)
-        $sql = "
+        $sql_total = "
         WITH loan_data AS (
             SELECT 
                 l.capital_amt,
@@ -737,7 +748,7 @@ class View_ui_cont extends CI_Controller
         FROM loan_data
     ";
 
-        $query = $this->db->query($sql, array($year));
+        $query = $this->db->query($sql_total, array($year));
         $result_cte = $query->row();
         $year_total = $result_cte->total_capital ?? 0;
 
@@ -764,7 +775,7 @@ class View_ui_cont extends CI_Controller
             'label' => 'Loan Amount'
         ]);
     }
-
+    
     public function get_payment_filter_data()
     {
         $selected_date = $this->input->get('selected_date');
