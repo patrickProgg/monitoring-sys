@@ -842,6 +842,72 @@ class View_ui_cont extends CI_Controller
         echo json_encode($response);
     }
 
+    // public function get_loan_filter_data()
+    // {
+    //     $selected_date = $this->input->get('selected_date');
+    //     $range_type = $this->input->get('range_type');
+
+    //     if (!$selected_date) {
+    //         $selected_date = date('Y-m-d');
+    //     }
+
+    //     if (!$range_type) {
+    //         $range_type = 'day';
+    //     }
+
+    //     // Calculate start and end dates based on range type
+    //     switch ($range_type) {
+    //         case 'day':
+    //             $start_date = $selected_date;
+    //             $end_date = $selected_date;
+    //             break;
+    //         case 'week':
+    //             $start_date = date('Y-m-d', strtotime('monday this week', strtotime($selected_date)));
+    //             $end_date = date('Y-m-d', strtotime('sunday this week', strtotime($selected_date)));
+    //             break;
+    //         case 'month':
+    //             $start_date = date('Y-m-01', strtotime($selected_date));
+    //             $end_date = date('Y-m-t', strtotime($selected_date));
+    //             break;
+    //         default:
+    //             $start_date = $selected_date;
+    //             $end_date = $selected_date;
+    //     }
+
+    //     // Get total payments for the date range
+    //     $this->db->select_sum('capital_amt')
+    //         ->from('tbl_loan')
+    //         ->where('start_date >=', $start_date)
+    //         ->where('start_date <=', $end_date);
+
+    //     $query = $this->db->get();
+    //     $range_total = $query->row()->capital_amt ?: 0;
+
+    //     // Calculate days count
+    //     $days = (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24) + 1;
+
+    //     // Prepare response
+    //     $response = [
+    //         'success' => true,
+    //         'data' => [
+    //             'range_total' => $range_total,
+    //             'range_total_formatted' => '₱' . number_format($range_total, 2),
+    //             'start_date' => $start_date,
+    //             'end_date' => $end_date,
+    //             'start_date_display' => date('M j, Y', strtotime($start_date)),
+    //             'end_date_display' => date('M j, Y', strtotime($end_date)),
+    //             'selected_date' => $selected_date,
+    //             'range_type' => $range_type,
+    //             'is_single_day' => ($range_type == 'day'),
+    //             'days_count' => $days,
+    //             'is_today' => ($range_type == 'day' && $selected_date == date('Y-m-d'))
+    //         ]
+    //     ];
+
+    //     header('Content-Type: application/json');
+    //     echo json_encode($response);
+    // }
+
     public function get_loan_filter_data()
     {
         $selected_date = $this->input->get('selected_date');
@@ -874,14 +940,36 @@ class View_ui_cont extends CI_Controller
                 $end_date = $selected_date;
         }
 
-        // Get total payments for the date range
-        $this->db->select_sum('capital_amt')
-            ->from('tbl_loan')
-            ->where('start_date >=', $start_date)
-            ->where('start_date <=', $end_date);
+        $year = date('Y', strtotime($selected_date));
 
-        $query = $this->db->get();
-        $range_total = $query->row()->capital_amt ?: 0;
+        // Get total payments for the date range - with restructured logic (original capitals only)
+        $sql = "
+        WITH loan_data AS (
+            SELECT 
+                l.capital_amt,
+                l.start_date,
+                LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+            FROM 
+                tbl_loan l
+            WHERE 
+                YEAR(l.start_date) = ?
+        ),
+        original_loans AS (
+            SELECT 
+                capital_amt,
+                start_date
+            FROM loan_data
+            WHERE prev_status IS NULL OR prev_status = 'completed'
+        )
+        SELECT 
+            SUM(capital_amt) AS total_capital_amt
+        FROM original_loans
+        WHERE start_date BETWEEN ? AND ?
+    ";
+
+        $query = $this->db->query($sql, array($year, $start_date, $end_date));
+        $result = $query->row();
+        $range_total = $result->total_capital_amt ?? 0;
 
         // Calculate days count
         $days = (strtotime($end_date) - strtotime($start_date)) / (60 * 60 * 24) + 1;
@@ -907,6 +995,7 @@ class View_ui_cont extends CI_Controller
         header('Content-Type: application/json');
         echo json_encode($response);
     }
+    
     public function get_pullout_filter_data()
     {
         $selected_date = $this->input->get('selected_date');
