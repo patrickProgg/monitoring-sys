@@ -190,7 +190,7 @@
             <!-- <i class='bx bx-dollar-circle' style="background: rgba(255, 159, 64, 0.2); color: rgba(255, 159, 64, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_loan_amt - $total_capital_loan_amt, 2) ?></h3>
-                <p style="color:rgba(255, 159, 64, 1)">Total Profit</p>
+                <p>Total Profit</p>
             </span>
         </li>
         <!-- </a> -->
@@ -200,7 +200,7 @@
             <!-- <i class='bx bx-wallet-alt' style="background: rgba(75, 192, 192, 0.2); color: rgba(75, 192, 192, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_receivables, 2) ?></h3>
-                <p style="color:rgba(75, 192, 192, 1)">Total Receivables</p>
+                <p>Total Receivables</p>
             </span>
         </li>
         <!-- </a> -->
@@ -210,7 +210,7 @@
             <span class="text">
                 <h3>₱ <?= number_format($total_payment, 2) ?>
                 </h3>
-                <p style="color:rgb(255, 184, 102)">Total Collectibles</p>
+                <p>Total Collectibles</p>
             </span>
         </li>
 
@@ -219,7 +219,7 @@
             <span class="text">
                 <h3>₱ <?= number_format($total_capital, 2) ?>
                 </h3>
-                <p style="color:rgb(255, 184, 102)">Total Capital</p>
+                <p>Total Capital</p>
             </span>
         </li>
 
@@ -228,7 +228,7 @@
             <span class="text">
                 <h3>₱ <?= number_format($total_amt, 2) ?>
                 </h3>
-                <p style="color:rgb(102, 255, 235)">Total Amount</p>
+                <p>Total Amount</p>
             </span>
         </li>
 
@@ -237,7 +237,7 @@
                 <!-- <i class='bx bx-log-out' style="background: rgba(153, 102, 255, 0.2); color: rgba(153, 102, 255, 1);"></i> -->
                 <span class="text">
                     <h3>₱ <?= number_format($total_pull_out, 2) ?></h3>
-                    <p style="color:rgba(153, 102, 255, 1)">Total Pull Out</p>
+                    <p>Total Pull Out</p>
                 </span>
             </li>
         </a>
@@ -247,7 +247,7 @@
                 <!-- <i class='bx bxs-flame' style="background: rgba(54, 162, 235, 0.2); color: rgba(54, 162, 235, 1);"></i> -->
                 <span class="text">
                     <h3>₱ <?= number_format($total_expenses, 2) ?></h3>
-                    <p style="color:rgba(54, 162, 235, 1)">Total Expenses</p>
+                    <p>Total Expenses</p>
                 </span>
             </li>
         </a>
