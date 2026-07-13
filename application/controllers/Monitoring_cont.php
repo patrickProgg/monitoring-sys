@@ -1298,18 +1298,39 @@ class Monitoring_cont extends CI_Controller
     }
     private function get_daily_data($selectedDate)
     {
-        $this->db->select('
-            a.capital_amt,
-            a.start_date,
-            b.full_name
-        ');
+        $year = date('Y', strtotime($selectedDate));
 
-        $this->db->from('tbl_loan as a');
-        $this->db->join('tbl_client as b', 'b.id = a.cl_id');
-        $this->db->where('a.start_date', $selectedDate);
-        $this->db->where('b.status !=', '1');
+        $sql = "
+            WITH loan_data AS (
+                SELECT 
+                    l.capital_amt,
+                    l.start_date,
+                    l.cl_id,
+                    LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+                FROM 
+                    tbl_loan l
+                WHERE 
+                    YEAR(l.start_date) = ?
+            ),
+            original_loans AS (
+                SELECT 
+                    ld.capital_amt,
+                    ld.start_date,
+                    ld.cl_id
+                FROM loan_data ld
+                INNER JOIN tbl_client c ON c.id = ld.cl_id
+                WHERE (ld.prev_status IS NULL OR ld.prev_status = 'completed')
+                AND c.status != '1'
+            )
+            SELECT 
+                capital_amt,
+                start_date,
+                (SELECT full_name FROM tbl_client WHERE id = cl_id) AS full_name
+            FROM original_loans
+            WHERE start_date = ?
+        ";
 
-        $query = $this->db->get();
+        $query = $this->db->query($sql, array($year, $selectedDate));
         return $query->result_array();
     }
 
