@@ -206,13 +206,13 @@
         </li>
         <!-- </a> -->
 
-        <li style="border-bottom: 2px solid rgba(75, 192, 192, 1);">
-            <i class='bx bx-coins' style="background: rgba(75, 192, 192, 0.2); color: rgba(75, 192, 192, 1);"></i>
+        <li style="border-bottom: 2px solid rgba(255, 184, 102, 1);">
+            <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i>
             <span class="text">
                 <h3>₱
                     <?= number_format($total_payment, 2) ?>
                 </h3>
-                <p style="color:rgb(15, 228, 43)">Total Collectibles</p>
+                <p style="color:rgb(255, 184, 102)">Total Collectibles</p>
             </span>
         </li>
 
