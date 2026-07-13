@@ -166,7 +166,7 @@
     <ul class="box-info">
 
         <a href="<?= base_url(); ?>client" style="text-decoration: none; color: inherit;">
-            <li style="border-bottom: 2px solid rgba(255, 99, 132, 1);">
+            <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
                 <!-- <i class='bx bx-group' style="background: rgba(255, 99, 132, 0.2); color: rgba(255, 99, 132, 1);"></i> -->
                 <span class="text">
                     <h3><?php echo $total_client; ?></h3>
@@ -186,7 +186,7 @@
                 <p style="color:rgba(255, 159, 64, 1)">Total Released</p>
             </span>
         </li> -->
-        <li style="border-bottom: 2px solid rgba(255, 159, 64, 1);">
+        <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
             <!-- <i class='bx bx-dollar-circle' style="background: rgba(255, 159, 64, 0.2); color: rgba(255, 159, 64, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_loan_amt - $total_capital_loan_amt, 2) ?></h3>
@@ -196,7 +196,7 @@
         <!-- </a> -->
 
         <!-- <a href="<?= base_url(); ?>location" style="text-decoration: none; color: inherit;"> -->
-        <li style="border-bottom: 2px solid rgba(75, 192, 192, 1);">
+        <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
             <!-- <i class='bx bx-wallet-alt' style="background: rgba(75, 192, 192, 0.2); color: rgba(75, 192, 192, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_receivables, 2) ?></h3>
@@ -205,7 +205,7 @@
         </li>
         <!-- </a> -->
 
-        <li style="border-bottom: 2px solid rgba(255, 184, 102, 1);">
+        <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
             <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_payment, 2) ?>
@@ -214,7 +214,7 @@
             </span>
         </li>
 
-        <li style="border-bottom: 2px solid rgb(252, 255, 102);">
+        <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
             <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_capital, 2) ?>
@@ -223,7 +223,7 @@
             </span>
         </li>
 
-        <li style="border-bottom: 2px solid rgb(102, 255, 148);">
+        <li style="border-bottom: 2px solid rgb(54, 162, 235, 1);">
             <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_amt, 2) ?>
@@ -233,7 +233,7 @@
         </li>
 
         <a href="<?= base_url(); ?>pull_out" style="text-decoration: none; color: inherit;">
-            <li style="border-bottom: 2px solid rgba(153, 102, 255, 1);">
+            <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
                 <!-- <i class='bx bx-log-out' style="background: rgba(153, 102, 255, 0.2); color: rgba(153, 102, 255, 1);"></i> -->
                 <span class="text">
                     <h3>₱ <?= number_format($total_pull_out, 2) ?></h3>
