@@ -697,14 +697,13 @@ class View_ui_cont extends CI_Controller
             $year = date('Y');
         }
 
+        // Monthly data for chart
         $this->db->select(
             "MONTH(a.start_date) as month, SUM(a.capital_amt) as total"
         )
             ->from('tbl_loan as a')
             ->join('tbl_client as b', 'b.id = a.cl_id', 'left')
-            // ->where('b.status !=', '1')
             ->where('YEAR(a.start_date)', $year)
-            ->where_in('a.status', ['ongoing', 'completed'])
             ->group_by('MONTH(a.start_date)')
             ->order_by('MONTH(a.start_date)');
 
@@ -719,15 +718,40 @@ class View_ui_cont extends CI_Controller
             $monthly_totals[$month] = floatval($row['total']);
         }
 
-        // Get year total
+        // Get year total (simple sum)
         $this->db->select_sum('a.capital_amt')
             ->from('tbl_loan as a')
             ->join('tbl_client as b', 'b.id = a.cl_id', 'left')
-            // ->where('b.status !=', '1')
-            ->where_in('a.status', ['ongoing', 'completed'])
             ->where('YEAR(a.start_date)', $year);
         $year_total_query = $this->db->get();
         $year_total = $year_total_query->row()->capital_amt ?: 0;
+
+        // Get total_release using CTE (original capitals only)
+        $sql = "
+        WITH loan_data AS (
+            SELECT 
+                l.capital_amt,
+                l.added_amt,
+                l.total_amt,
+                (l.total_amt - l.capital_amt - l.added_amt) AS interest_amt,
+                LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+            FROM 
+                tbl_loan l
+            WHERE 
+                YEAR(l.start_date) = ?
+        )
+        SELECT 
+            SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) AS total_release,
+            SUM(added_amt) AS total_added,
+            SUM(interest_amt) AS total_interest,
+            SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) +
+            SUM(added_amt) +
+            SUM(interest_amt) AS total_amt
+        FROM loan_data
+    ";
+
+        $query = $this->db->query($sql, array($year));
+        $result_cte = $query->row();
 
         header('Content-Type: application/json');
         echo json_encode([
@@ -735,6 +759,10 @@ class View_ui_cont extends CI_Controller
             'data' => array_values($monthly_totals),
             'year' => $year,
             'year_total' => $year_total,
+            'total_release' => $result_cte->total_release ?? 0,
+            'total_added' => $result_cte->total_added ?? 0,
+            'total_interest' => $result_cte->total_interest ?? 0,
+            'total_amt' => $result_cte->total_amt ?? 0,
             'months' => [
                 'Jan',
                 'Feb',
