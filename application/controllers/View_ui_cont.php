@@ -704,6 +704,7 @@ class View_ui_cont extends CI_Controller
             ->join('tbl_client as b', 'b.id = a.cl_id', 'left')
             // ->where('b.status !=', '1')
             ->where('YEAR(a.start_date)', $year)
+            ->where_in('a.status', ['ongoing', 'completed'])  // Add this line
             ->group_by('MONTH(a.start_date)')
             ->order_by('MONTH(a.start_date)');
 
@@ -723,7 +724,9 @@ class View_ui_cont extends CI_Controller
             ->from('tbl_loan as a')
             ->join('tbl_client as b', 'b.id = a.cl_id', 'left')
             // ->where('b.status !=', '1')
-            ->where('YEAR(a.start_date)', $year);
+            ->where('YEAR(a.start_date)', $year)
+            ->where_in('a.status', ['ongoing', 'completed'])  // Add this line
+            ->get();
         $year_total_query = $this->db->get();
         $year_total = $year_total_query->row()->capital_amt ?: 0;
 
