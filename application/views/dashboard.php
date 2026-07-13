@@ -851,6 +851,8 @@
         }
 
         function updateYearSummary(data, year, yearTotal = null) {
+
+            console.log(data); // Debugging line to check the data received
             const total = yearTotal || data.reduce((a, b) => a + b, 0);
             const avgMonthly = total / 12;
             const maxMonthValue = Math.max(...data);
