@@ -1578,6 +1578,9 @@ class Monitoring_cont extends CI_Controller
         $date = $this->input->post('date');
         $datePlusOne = date('Y-m-d', strtotime($date . ' -1 day'));
 
+        var_dump($datePlusOne);
+        exit;
+
         $this->db->select('
             a.id as loan_id,
             a.start_date,
