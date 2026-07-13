@@ -1,7 +1,7 @@
 <style>
     .box-info {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         grid-gap: 24px;
         padding-left: 0;
         padding-right: 0;
@@ -29,7 +29,7 @@
     }
 
     .box-info li .bx {
-        width: 60px;
+        width: 80px;
         height: 60px;
         border-radius: 10px;
         font-size: 25px;
