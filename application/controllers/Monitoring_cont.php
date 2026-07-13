@@ -1578,8 +1578,8 @@ class Monitoring_cont extends CI_Controller
         $date = $this->input->post('date');
         $datePlusOne = date('Y-m-d', strtotime($date . ' -1 day'));
 
-        var_dump($datePlusOne);
-        exit;
+        // var_dump($datePlusOne);
+        // exit;
 
         $this->db->select('
             a.id as loan_id,
@@ -1591,7 +1591,7 @@ class Monitoring_cont extends CI_Controller
         ');
         $this->db->from('tbl_loan as a');
         $this->db->join('tbl_client as b', 'b.id = a.cl_id');
-        $this->db->where("'$datePlusOne' BETWEEN a.start_date AND a.due_date");
+        $this->db->where("'$date' BETWEEN a.start_date AND a.due_date");
         $this->db->where('a.status', 'ongoing');
         $this->db->where('b.status !=', '1');
         $this->db->order_by('b.acc_no', 'ASC');
