@@ -739,6 +739,9 @@ class View_ui_cont extends CI_Controller
 
         $query = $this->db->query($sql, array($year));
         $result_cte = $query->row();
+
+        var_dump($result_cte); // Debugging line to check the result of the CTE query
+        exit;
         $year_total = $result_cte->total_capital ?? 0;
 
         header('Content-Type: application/json');
