@@ -46,16 +46,9 @@ class Monitoring_cont extends CI_Controller
 
         $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) as p';
 
-        // Subquery to get original loans only (using derived table with window function)
+        // CTE for original loans only
         $original_loans = "
-        SELECT 
-            id,
-            cl_id,
-            capital_amt,
-            total_amt,
-            due_date,
-            status
-        FROM (
+        WITH loan_data AS (
             SELECT 
                 l.id,
                 l.cl_id,
@@ -66,7 +59,15 @@ class Monitoring_cont extends CI_Controller
                 LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
             FROM 
                 tbl_loan l
-        ) AS loan_with_prev
+        )
+        SELECT 
+            id,
+            cl_id,
+            capital_amt,
+            total_amt,
+            due_date,
+            status
+        FROM loan_data
         WHERE prev_status IS NULL OR prev_status = 'completed'
     ";
 
