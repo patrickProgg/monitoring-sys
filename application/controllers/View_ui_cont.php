@@ -72,7 +72,7 @@ class View_ui_cont extends CI_Controller
             ->get()
             ->row()
             ->total_amt ?: 0;
-//
+
         $data['total_capital_loan_amt'] = $this->db
             ->select_sum('tbl_loan.capital_amt')
             ->from('tbl_loan')
@@ -80,6 +80,22 @@ class View_ui_cont extends CI_Controller
             ->get()
             ->row()
             ->capital_amt ?: 0;
+
+        $data['total_payment'] = $this->db
+            ->select("
+                COALESCE(
+                    (SELECT SUM(p.amt) 
+                    FROM tbl_payment p 
+                    WHERE p.loan_id = tbl_loan.id 
+                    AND p.payment_for BETWEEN DATE_ADD(tbl_loan.start_date, INTERVAL 1 DAY) AND tbl_loan.due_date),
+                    0
+                ) AS total_payment
+            ", FALSE)
+            ->from('tbl_loan')
+            ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
+            ->get()
+            ->row()
+            ->total_payment ?? 0;
 
         $data['total_receivables'] = $this->db
             ->select("
@@ -103,7 +119,7 @@ class View_ui_cont extends CI_Controller
             ->get()
             ->row()
             ->total_receivables ?? 0;
-            
+
 
         $sql = "
             WITH loan_identification AS (

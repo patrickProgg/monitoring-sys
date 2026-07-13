@@ -206,6 +206,16 @@
         </li>
         <!-- </a> -->
 
+        <li style="border-bottom: 2px solid rgba(75, 192, 192, 1);">
+            <i class='bx bx-wallet-alt' style="background: rgba(75, 192, 192, 0.2); color: rgba(75, 192, 192, 1);"></i>
+            <span class="text">
+                <h3>₱
+                    <?= number_format($total_payment, 2) ?>
+                </h3>
+                <p style="color:rgba(75, 192, 192, 1)">Total Collectibles</p>
+            </span>
+        </li>
+
         <a href="<?= base_url(); ?>pull_out" style="text-decoration: none; color: inherit;">
             <li style="border-bottom: 2px solid rgba(153, 102, 255, 1);">
                 <i class='bx bx-log-out'
