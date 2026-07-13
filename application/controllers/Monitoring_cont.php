@@ -1317,28 +1317,46 @@ class Monitoring_cont extends CI_Controller
     {
         $monday = date('Y-m-d', strtotime('monday this week', strtotime($selectedDate)));
         $sunday = date('Y-m-d', strtotime('sunday this week', strtotime($selectedDate)));
+        $year = date('Y', strtotime($selectedDate));
 
-        // Query for payments (existing)
+        // Query for payments (existing - no change needed)
         $this->db->select('SUM(a.amt) as total_amt');
         $this->db->from('tbl_payment as a');
         $this->db->join('tbl_loan as b', 'b.id = a.loan_id');
         $this->db->join('tbl_client as c', 'c.id = b.cl_id');
-        $this->db->where('c.status !=', '1');
         $this->db->where("a.payment_for >=", $monday);
         $this->db->where("a.payment_for <=", $sunday);
         $this->db->where("a.payment_for BETWEEN DATE_ADD(b.start_date, INTERVAL 1 DAY) AND b.due_date", NULL, FALSE);
         $payment_query = $this->db->get();
         $payment_result = $payment_query->row_array();
 
-        // Separate query for new loans created this week
-        $this->db->select('SUM(capital_amt) as total_capital_amt');
-        $this->db->from('tbl_loan');
-        $this->db->join('tbl_client', 'tbl_client.id = tbl_loan.cl_id');
-        $this->db->where('tbl_client.status !=', '1');
-        $this->db->where("start_date >=", $monday);
-        $this->db->where("start_date <=", $sunday);
-        $loan_query = $this->db->get();
-        $loan_result = $loan_query->row_array();
+        // Query for new loans created this week - with restructured logic (original capitals only)
+        $sql = "
+            WITH loan_data AS (
+                SELECT 
+                    l.capital_amt,
+                    l.start_date,
+                    LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+                FROM 
+                    tbl_loan l
+                WHERE 
+                    YEAR(l.start_date) = ?
+            ),
+            original_loans AS (
+                SELECT 
+                    capital_amt,
+                    start_date
+                FROM loan_data
+                WHERE prev_status IS NULL OR prev_status = 'completed'
+            )
+            SELECT 
+                SUM(capital_amt) AS total_capital_amt
+            FROM original_loans
+            WHERE start_date BETWEEN ? AND ?
+        ";
+
+        $query = $this->db->query($sql, array($year, $monday, $sunday));
+        $loan_result = $query->row_array();
 
         return [
             'total_amt' => $payment_result['total_amt'] ?? 0,
