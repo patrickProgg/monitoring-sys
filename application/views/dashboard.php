@@ -170,7 +170,7 @@
                 <!-- <i class='bx bx-group' style="background: rgba(255, 99, 132, 0.2); color: rgba(255, 99, 132, 1);"></i> -->
                 <span class="text">
                     <h3><?php echo $total_client; ?></h3>
-                    <p style="color:rgba(255, 99, 132, 1)">Active Clients</p>
+                    <p>Active Clients</p>
                 </span>
             </li>
         </a>
@@ -214,7 +214,7 @@
             </span>
         </li>
 
-        <li style="border-bottom: 2px solid rgba(255, 184, 102, 1);">
+        <li style="border-bottom: 2px solid rgb(252, 255, 102);">
             <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_capital, 2) ?>
@@ -223,7 +223,7 @@
             </span>
         </li>
 
-        <li style="border-bottom: 2px solid rgba(255, 184, 102, 1);">
+        <li style="border-bottom: 2px solid rgb(102, 255, 148);">
             <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
             <span class="text">
                 <h3>₱ <?= number_format($total_amt, 2) ?>
