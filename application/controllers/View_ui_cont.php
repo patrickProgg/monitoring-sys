@@ -92,7 +92,6 @@ class View_ui_cont extends CI_Controller
                 ) AS total_payment
             ", FALSE)
             ->from('tbl_loan')
-            ->join('tbl_client', 'tbl_loan.cl_id = tbl_client.id')
             ->get()
             ->row()
             ->total_payment ?? 0;
