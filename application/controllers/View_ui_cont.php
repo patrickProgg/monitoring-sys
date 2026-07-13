@@ -704,7 +704,6 @@ class View_ui_cont extends CI_Controller
             ->from('tbl_loan as a')
             ->join('tbl_client as b', 'b.id = a.cl_id', 'left')
             ->where('YEAR(a.start_date)', $year)
-            ->where_in('a.status', ['ongoing', 'completed'])
             ->group_by('MONTH(a.start_date)')
             ->order_by('MONTH(a.start_date)');
 
@@ -732,7 +731,6 @@ class View_ui_cont extends CI_Controller
                 tbl_loan l
             WHERE 
                 YEAR(l.start_date) = ?
-                AND l.status IN ('ongoing', 'completed')
         )
         SELECT 
             SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) AS total_capital
