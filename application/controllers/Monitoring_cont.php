@@ -32,78 +32,115 @@ class Monitoring_cont extends CI_Controller
         $orderDir = isset($order[0]['dir']) ? $order[0]['dir'] : 'DESC';
 
         $columns = [
-            0 => 'a.acc_no',
-            1 => 'a.full_name',
-            2 => 'a.address',
+            0 => 'acc_no',
+            1 => 'full_name',
+            2 => 'address',
             3 => 'contact_no',
             4 => 'loan_count',
             5 => 'total_loan_amount',
-            6 => 'a.date_added',
+            6 => 'date_added',
             7 => 'latest_due_date'
         ];
 
         $orderColumn = $columns[$orderColumnIndex];
 
-        $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) as p';
-
-        $this->db->select('
-            a.id,
-            a.acc_no,
-            a.full_name,
-            a.address,
-            a.date_added,
-            a.contact_no_1,
-            a.contact_no_2,
-            CONCAT(a.contact_no_1, " | ", a.contact_no_2) AS contact_no,
-            COUNT(b.id) AS loan_count,
+        $sql = "
+        WITH client_loans AS (
+            SELECT 
+                a.id AS client_id,
+                a.acc_no,
+                a.full_name,
+                a.address,
+                a.date_added,
+                a.contact_no_1,
+                a.contact_no_2,
+                CONCAT(a.contact_no_1, ' | ', a.contact_no_2) AS contact_no,
+                b.id AS loan_id,
+                b.capital_amt,
+                b.total_amt,
+                b.due_date,
+                b.status,
+                COALESCE(p.payment_total, 0) AS payment_total,
+                LAG(b.status) OVER (PARTITION BY b.cl_id ORDER BY b.id) AS prev_status,
+                CASE 
+                    WHEN LAG(b.status) OVER (PARTITION BY b.cl_id ORDER BY b.id) IS NULL THEN 'ORIGINAL'
+                    WHEN LAG(b.status) OVER (PARTITION BY b.cl_id ORDER BY b.id) = 'completed' THEN 'ORIGINAL'
+                    ELSE 'RESTRUCTURED'
+                END AS loan_type
+            FROM 
+                tbl_client a
+            LEFT JOIN 
+                tbl_loan b ON b.cl_id = a.id
+            LEFT JOIN 
+                (SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) p ON p.loan_id = b.id
+            WHERE 
+                a.status = ? 
+        ),
+        original_loans AS (
+            SELECT 
+                client_id,
+                acc_no,
+                full_name,
+                address,
+                date_added,
+                contact_no_1,
+                contact_no_2,
+                contact_no,
+                loan_id,
+                capital_amt,
+                total_amt,
+                due_date,
+                status,
+                payment_total,
+                loan_type
+            FROM client_loans
+            WHERE loan_type = 'ORIGINAL'
+        )
+        SELECT 
+            client_id AS id,
+            acc_no,
+            full_name,
+            address,
+            date_added,
+            contact_no_1,
+            contact_no_2,
+            contact_no,
+            COUNT(loan_id) AS loan_count,
             COALESCE(SUM(
                 CASE 
-                    WHEN b.status = "overdue" THEN COALESCE(p.payment_total, 0)
-                    ELSE b.capital_amt
+                    WHEN status = 'overdue' THEN payment_total
+                    ELSE capital_amt
                 END
             ), 0) AS total_loan_amount,
-            MAX(b.due_date) AS latest_due_date
-        ');
+            MAX(due_date) AS latest_due_date
+        FROM original_loans
+        WHERE 1=1
+    ";
 
-        $this->db->from('tbl_client as a');
-        $this->db->join('tbl_loan as b', 'b.cl_id = a.id', 'left');
-        $this->db->join($subquery, 'p.loan_id = b.id', 'left');
-
-        if ($history) {
-            $this->db->where('a.status', '1');
-        } else {
-            $this->db->where('a.status', '0');
-        }
-
-        $this->db->group_by('a.id');
-
-        if ($history) {
-            $this->db->where('a.status', '1');
-        } else {
-            $this->db->where('a.status', '0');
-        }
-
+        // Add search filter
         if (!empty($searchValue)) {
-            $this->db->group_start();
-            $this->db->like('a.full_name', $searchValue);
-            $this->db->or_like('a.address', $searchValue);
-            $this->db->or_like('a.contact_no_1', $searchValue);
-            $this->db->or_like('a.contact_no_2', $searchValue);
-            $this->db->or_like('a.date_added', $searchValue);
-            $this->db->or_like('a.acc_no', $searchValue);
-            $this->db->group_end();
+            $sql .= " AND (
+            full_name LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR address LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR contact_no_1 LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR contact_no_2 LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR date_added LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+            OR acc_no LIKE '%" . $this->db->escape_like_str($searchValue) . "%'
+        )";
         }
 
-        $this->db->group_by('a.id');
+        $sql .= " GROUP BY client_id, acc_no, full_name, address, date_added, contact_no_1, contact_no_2, contact_no";
 
-        $this->db->order_by($orderColumn, $orderDir);
+        // Get total count
+        $count_sql = "SELECT COUNT(*) AS total FROM (" . $sql . ") AS subquery";
+        $count_query = $this->db->query($count_sql, array($history ? '1' : '0'));
+        $recordsFiltered = $count_query->row()->total ?? 0;
 
-        $subQuery = clone $this->db;
-        $recordsFiltered = $subQuery->get()->num_rows();
+        // Add ordering and limit
+        $sql .= " ORDER BY " . $orderColumn . " " . $orderDir;
+        $sql .= " LIMIT " . intval($length) . " OFFSET " . intval($start);
 
-        $this->db->limit($length, $start);
-
-        $query = $this->db->get();
+        $query = $this->db->query($sql, array($history ? '1' : '0'));
         $data = $query->result_array();
 
         echo json_encode([
