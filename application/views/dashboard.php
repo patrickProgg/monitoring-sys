@@ -215,6 +215,26 @@
             </span>
         </li>
 
+        <li style="border-bottom: 2px solid rgba(255, 184, 102, 1);">
+            <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
+            <span class="text">
+                <h3>₱
+                    <?= number_format($total_capital, 2) ?>
+                </h3>
+                <p style="color:rgb(255, 184, 102)">Total Capital</p>
+            </span>
+        </li>
+
+        <li style="border-bottom: 2px solid rgba(255, 184, 102, 1);">
+            <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
+            <span class="text">
+                <h3>₱
+                    <?= number_format($total_amt, 2) ?>
+                </h3>
+                <p style="color:rgb(102, 255, 235)">Total Amount</p>
+            </span>
+        </li>
+
         <a href="<?= base_url(); ?>pull_out" style="text-decoration: none; color: inherit;">
             <li style="border-bottom: 2px solid rgba(153, 102, 255, 1);">
                 <!-- <i class='bx bx-log-out' style="background: rgba(153, 102, 255, 0.2); color: rgba(153, 102, 255, 1);"></i> -->
