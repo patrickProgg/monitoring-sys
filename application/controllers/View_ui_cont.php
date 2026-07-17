@@ -66,25 +66,25 @@ class View_ui_cont extends CI_Controller
         // $subquery = '(SELECT loan_id, SUM(amt) AS payment_total FROM tbl_payment GROUP BY loan_id) AS p';
 
         $sql = "
-    WITH loan_data AS (
-        SELECT 
-            l.capital_amt,
-            l.added_amt,
-            l.total_amt,
-            (l.total_amt - l.capital_amt - l.added_amt) AS interest_amt,
-            LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
-        FROM 
-            tbl_loan l
-    )
-    SELECT 
-        SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) AS total_capital,
-        SUM(added_amt) AS total_added,
-        SUM(interest_amt) AS total_interest,
-        SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) +
-        SUM(added_amt) +
-        SUM(interest_amt) AS total_amt
-    FROM loan_data
-";
+            WITH loan_data AS (
+                SELECT 
+                    l.capital_amt,
+                    l.added_amt,
+                    l.total_amt,
+                    (l.total_amt - l.capital_amt - l.added_amt) AS interest_amt,
+                    LAG(l.status) OVER (PARTITION BY l.cl_id ORDER BY l.id) AS prev_status
+                FROM 
+                    tbl_loan l
+            )
+            SELECT 
+                SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) AS total_capital,
+                SUM(added_amt) AS total_added,
+                SUM(interest_amt) AS total_interest,
+                SUM(CASE WHEN prev_status IS NULL OR prev_status = 'completed' THEN capital_amt ELSE 0 END) +
+                SUM(added_amt) +
+                SUM(interest_amt) AS total_amt
+            FROM loan_data
+        ";
 
         $query = $this->db->query($sql);
         $result = $query->row();
