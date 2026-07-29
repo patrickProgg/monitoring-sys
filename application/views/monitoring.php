@@ -1501,7 +1501,7 @@
         });
 
         // Handle dropdown item selection
-        $(document).on('click', '#header_date_arr .dropdown-item', function (e) {
+        $(document).off('click', '#header_date_arr .dropdown-item', function (e) {
             e.preventDefault();
 
             let loanId = $(this).data('id');
