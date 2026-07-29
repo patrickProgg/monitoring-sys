@@ -208,8 +208,8 @@
         <li style="border-bottom: 2px solid rgba(54, 162, 235, 1);">
             <!-- <i class='bx bx-coins' style="background: rgba(255, 184, 102, 0.2); color: rgba(255, 184, 102, 1);"></i> -->
             <span class="text">
-                <!-- <h3>₱ <?= number_format($total_amt - $total_receivables, 2) ?> -->
-                <h3>₱ <?= number_format($total_payment, 2) ?>
+                <h3>₱ <?= number_format($total_amt - $total_receivables, 2) ?>
+                <!-- <h3>₱ <?= number_format($total_payment, 2) ?> -->
                 </h3>
                 <p>Total Collectibles</p>
             </span>
