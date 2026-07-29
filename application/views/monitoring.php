@@ -1501,124 +1501,124 @@
         });
 
         // Handle dropdown item selection
-        // Remove previous listener before attaching new one
-        $(document).off('click', '#header_date_arr .dropdown-item').on('click', '#header_date_arr .dropdown-item', function (e) {
-            e.preventDefault();
+        // $(document).off('click', '#header_date_arr .dropdown-item', function (e) {
+        //     e.preventDefault();
 
-            let loanId = $(this).data('id');
-            let firstStatus = $(this).data('first_status');
-            let formattedDate = $(this).data('formatted');
+        //     let loanId = $(this).data('id');
+        //     let firstStatus = $(this).data('first_status');
+        //     let formattedDate = $(this).data('formatted');
 
-            // Update button text
-            $('#dateDropdownBtn').text(formattedDate);
+        //     // Update button text
+        //     $('#dateDropdownBtn').text(formattedDate);
 
-            // Store selected values
-            $('#selected_date_id').val(loanId);
-            $('#header_loan_id').val(loanId);
+        //     // Store selected values
+        //     $('#selected_date_id').val(loanId);
+        //     $('#header_loan_id').val(loanId);
 
-            // Trigger loan details load
-            triggerLoanDetails(loanId, firstStatus);
+        //     // Trigger loan details load
+        //     triggerLoanDetails(loanId, firstStatus);
+        // });
+
+        $(document).ready(function () {
+            // Use namespace to safely remove only this specific event
+            $(document).off('click.loanDropdown', '#header_date_arr .dropdown-item').on('click.loanDropdown', '#header_date_arr .dropdown-item', function (e) {
+                e.preventDefault();
+
+                let loanId = $(this).data('id');
+                let firstStatus = $(this).data('first_status');
+                let formattedDate = $(this).data('formatted');
+
+                $('#dateDropdownBtn').text(formattedDate);
+                $('#selected_date_id').val(loanId);
+                $('#header_loan_id').val(loanId);
+
+                triggerLoanDetails(loanId, firstStatus);
+            });
         });
-        e.preventDefault();
 
-        let loanId = $(this).data('id');
-        let firstStatus = $(this).data('first_status');
-        let formattedDate = $(this).data('formatted');
+        function triggerLoanDetails(loanId, firstStatus) {
+            $('#header_loan_id').val(loanId)
 
-        // Update button text
-        $('#dateDropdownBtn').text(formattedDate);
+            $.ajax({
+                url: "<?php echo base_url('Monitoring_cont/get_loan_details'); ?>",
+                type: "POST",
+                dataType: "json",
+                data: { id: loanId },
+                success: function (response) {
 
-        // Store selected values
-        $('#selected_date_id').val(loanId);
-        $('#header_loan_id').val(loanId);
+                    Swal.close();
 
-        // Trigger loan details load
-        triggerLoanDetails(loanId, firstStatus);
-    });
+                    const loan = response[0];
 
-    function triggerLoanDetails(loanId, firstStatus) {
-        $('#header_loan_id').val(loanId)
+                    const format = d => new Date(d).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
 
-        $.ajax({
-            url: "<?php echo base_url('Monitoring_cont/get_loan_details'); ?>",
-            type: "POST",
-            dataType: "json",
-            data: { id: loanId },
-            success: function (response) {
+                    $('#header_loan_date').text(format(loan.start_date));
+                    $('#header_due_date').text(format(loan.due_date));
+                    $('#header_capital_amt').text(Number(loan.capital_amt).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    $('#header_added_amt').text(Number(loan.added_amt).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    $('#header_total_amt').text(Number(loan.total_amt).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+                    $('#header_interest').text(loan.interest);
+                    let dateDisplay = loan.complete_date ? format(loan.complete_date) : '';
 
-                Swal.close();
-
-                const loan = response[0];
-
-                const format = d => new Date(d).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                });
-
-                $('#header_loan_date').text(format(loan.start_date));
-                $('#header_due_date').text(format(loan.due_date));
-                $('#header_capital_amt').text(Number(loan.capital_amt).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-                $('#header_added_amt').text(Number(loan.added_amt).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-                $('#header_total_amt').text(Number(loan.total_amt).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
-                $('#header_interest').text(loan.interest);
-                let dateDisplay = loan.complete_date ? format(loan.complete_date) : '';
-
-                if (dateDisplay) {
-                    // If date exists, show dash, date, and checkmark
-                    $('#header_date_completed').html(`
+                    if (dateDisplay) {
+                        // If date exists, show dash, date, and checkmark
+                        $('#header_date_completed').html(`
                             <span class="mx-1">—</span>
                             ${dateDisplay}
                             <i class="fas fa-check-circle ms-1" style="color: #28a745; font-size: 0.9rem;"></i>
                         `);
-                } else {
-                    // If no date, show nothing (empty)
-                    $('#header_date_completed').html('');
-                }
-
-                let paymentMap = {};
-
-                response.forEach(item => {
-                    if (item.payment_for) {
-                        paymentMap[item.payment_for] = item.amt;
+                    } else {
+                        // If no date, show nothing (empty)
+                        $('#header_date_completed').html('');
                     }
-                });
 
-                const start = new Date(loan.start_date);
+                    let paymentMap = {};
 
-                let due = new Date(loan.due_date);
-                let dueDateOnly = due.toISOString().split('T')[0];
+                    response.forEach(item => {
+                        if (item.payment_for) {
+                            paymentMap[item.payment_for] = item.amt;
+                        }
+                    });
 
-                let today = new Date();
-                // let today = new Date("2026-05-22");
-                let todayDateOnly = today.toISOString().split('T')[0];
+                    const start = new Date(loan.start_date);
 
-                const status = loan.status;
-                const complete_date = new Date(loan.complete_date);
+                    let due = new Date(loan.due_date);
+                    let dueDateOnly = due.toISOString().split('T')[0];
 
-                if (status === "completed" || status === "overdue" && loan.amt != null) {
-                    due = complete_date;
-                }
+                    let today = new Date();
+                    // let today = new Date("2026-05-22");
+                    let todayDateOnly = today.toISOString().split('T')[0];
 
-                start.setDate(start.getDate() + 1);
+                    const status = loan.status;
+                    const complete_date = new Date(loan.complete_date);
 
-                let tableBody = '';
-                let current = new Date(start);
-                let totalPayment = 0;
+                    if (status === "completed" || status === "overdue" && loan.amt != null) {
+                        due = complete_date;
+                    }
 
-                if (status !== "ongoing") {
-                    // Only check for no payments when status is not ongoing
-                    const paymentKeys = Object.keys(paymentMap);
+                    start.setDate(start.getDate() + 1);
 
-                    if (paymentKeys.length === 0) {
-                        tableBody = '<tr><td colspan="4" class="text-center">No data available</td></tr>';
-                    } else if (status === "overdue") {
-                        paymentKeys.forEach((dateStr, rowIndex) => {
-                            let paymentAmt = parseFloat(paymentMap[dateStr]) || 0;
-                            let formattedAmt = paymentAmt !== 0 ? paymentAmt.toLocaleString('en-US') : '';
-                            totalPayment += paymentAmt;
+                    let tableBody = '';
+                    let current = new Date(start);
+                    let totalPayment = 0;
 
-                            tableBody += `
+                    if (status !== "ongoing") {
+                        // Only check for no payments when status is not ongoing
+                        const paymentKeys = Object.keys(paymentMap);
+
+                        if (paymentKeys.length === 0) {
+                            tableBody = '<tr><td colspan="4" class="text-center">No data available</td></tr>';
+                        } else if (status === "overdue") {
+                            paymentKeys.forEach((dateStr, rowIndex) => {
+                                let paymentAmt = parseFloat(paymentMap[dateStr]) || 0;
+                                let formattedAmt = paymentAmt !== 0 ? paymentAmt.toLocaleString('en-US') : '';
+                                totalPayment += paymentAmt;
+
+                                tableBody += `
                                     <tr>
                                         <td class="text-center">${rowIndex + 1}</td>        
                                         <td class="text-center">${new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
@@ -1636,17 +1636,17 @@
                                         </td>
                                     </tr>
                                 `;
-                        });
-                    } else {
-                        let rowIndex = 0;
-                        while (current <= due) {
-                            let dateStr = current.toISOString().split('T')[0];
-                            let paymentAmt = parseFloat(paymentMap[dateStr]) || 0;
-                            let formattedAmt = paymentAmt !== 0 ? paymentAmt.toLocaleString('en-US') : '';
+                            });
+                        } else {
+                            let rowIndex = 0;
+                            while (current <= due) {
+                                let dateStr = current.toISOString().split('T')[0];
+                                let paymentAmt = parseFloat(paymentMap[dateStr]) || 0;
+                                let formattedAmt = paymentAmt !== 0 ? paymentAmt.toLocaleString('en-US') : '';
 
-                            totalPayment += paymentAmt;
+                                totalPayment += paymentAmt;
 
-                            tableBody += `
+                                tableBody += `
                                     <tr>
                                         <td class="text-center">${rowIndex + 1}</td>
                                         <td class="text-center">${current.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
@@ -1665,21 +1665,21 @@
                                     </tr>
                                 `;
 
-                            current.setDate(current.getDate() + 1);
-                            rowIndex++;
+                                current.setDate(current.getDate() + 1);
+                                rowIndex++;
+                            }
                         }
-                    }
-                } else {
-                    // For ongoing loans, generate full schedule even if no payments exist
-                    let rowIndex = 0;
-                    while (current <= due) {
-                        let dateStr = current.toISOString().split('T')[0];
-                        let paymentAmt = parseFloat(paymentMap[dateStr]) || 0;
-                        let formattedAmt = paymentAmt !== 0 ? paymentAmt.toLocaleString('en-US') : '';
+                    } else {
+                        // For ongoing loans, generate full schedule even if no payments exist
+                        let rowIndex = 0;
+                        while (current <= due) {
+                            let dateStr = current.toISOString().split('T')[0];
+                            let paymentAmt = parseFloat(paymentMap[dateStr]) || 0;
+                            let formattedAmt = paymentAmt !== 0 ? paymentAmt.toLocaleString('en-US') : '';
 
-                        totalPayment += paymentAmt;
+                            totalPayment += paymentAmt;
 
-                        tableBody += `
+                            tableBody += `
                                 <tr>
                                     <td class="text-center">${rowIndex + 1}</td>
                                     <td class="text-center">${current.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
@@ -1698,22 +1698,22 @@
                                 </tr>
                             `;
 
-                        current.setDate(current.getDate() + 1);
-                        rowIndex++;
+                            current.setDate(current.getDate() + 1);
+                            rowIndex++;
+                        }
                     }
+
+                    updateTotals(response, loanId, totalPayment, firstStatus);
+
+                    if (firstStatus === "ongoing" && todayDateOnly > dueDateOnly) {
+                        $('#new_type').val("overdue");
+                    }
+
+                    $('#payment_table tbody').html(tableBody);
+
                 }
-
-                updateTotals(response, loanId, totalPayment, firstStatus);
-
-                if (firstStatus === "ongoing" && todayDateOnly > dueDateOnly) {
-                    $('#new_type').val("overdue");
-                }
-
-                $('#payment_table tbody').html(tableBody);
-
-            }
-        });
-    };
+            });
+        };
     }
 
     $(document).on('keypress', '.payment-input', function (e) {
