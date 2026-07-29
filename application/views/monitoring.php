@@ -3167,4 +3167,13 @@
         varianceModal.classList.remove('modal-dimmed');
     });
 
+    // When modal is closed, reset the dropdown
+    $('#viewLoaner').on('hidden.bs.modal', function () {
+        // Clear the dropdown menu
+        $('#header_date_arr').empty();
+
+        // Optionally add default option
+        $('#header_date_arr').append('<li><a class="dropdown-item" href="#">Select Date</a></li>');
+    });
+
 </script>
