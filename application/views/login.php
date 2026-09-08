@@ -29,37 +29,46 @@
 
     }
 
-    body::before {
+    body::before,
+    body::after {
         content: "";
         position: fixed;
-        top: -10px;
-        left: 0;
-        width: 100%;
-        height: 110%;
+        inset: -50px 0 0;
         pointer-events: none;
         z-index: 9999;
+        background-repeat: repeat;
+    }
 
+    body::before {
         background-image:
-            radial-gradient(4px 4px at 20px 30px, white, transparent),
-            radial-gradient(3px 3px at 40px 70px, white, transparent),
-            radial-gradient(5px 5px at 90px 40px, white, transparent),
-            radial-gradient(3px 3px at 130px 80px, white, transparent),
-            radial-gradient(4px 4px at 160px 20px, white, transparent),
-            radial-gradient(3px 3px at 200px 60px, white, transparent),
-            radial-gradient(5px 5px at 250px 90px, white, transparent);
+            radial-gradient(3px 3px at 20px 30px, #fff, transparent),
+            radial-gradient(4px 4px at 80px 80px, #fff, transparent),
+            radial-gradient(2px 2px at 150px 40px, #fff, transparent),
+            radial-gradient(5px 5px at 220px 100px, #fff, transparent);
 
-        background-size: 300px 150px;
-        animation: snow 10s linear infinite;
+        background-size: 300px 200px;
+        animation: snowfall 8s linear infinite;
         opacity: 0.8;
     }
 
-    @keyframes snow {
-        0% {
-            background-position: 0 0;
+    body::after {
+        background-image:
+            radial-gradient(6px 6px at 50px 50px, #fff, transparent),
+            radial-gradient(4px 4px at 180px 120px, #fff, transparent),
+            radial-gradient(3px 3px at 280px 30px, #fff, transparent);
+
+        background-size: 400px 300px;
+        animation: snowfall 15s linear infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes snowfall {
+        from {
+            background-position: 0 -300px;
         }
 
-        100% {
-            background-position: 100px 600px;
+        to {
+            background-position: 100px 1000px;
         }
     }
 
