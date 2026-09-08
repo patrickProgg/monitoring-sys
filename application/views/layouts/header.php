@@ -83,23 +83,27 @@
             z-index: 9999;
 
             background-image:
-                radial-gradient(4px 4px at 20px 30px, rgba(80, 80, 80, 0.8), transparent),
-                radial-gradient(3px 3px at 80px 80px, rgba(100, 100, 100, 0.7), transparent),
-                radial-gradient(5px 5px at 150px 40px, rgba(70, 70, 70, 0.75), transparent),
-                radial-gradient(3px 3px at 220px 100px, rgba(90, 90, 90, 0.7), transparent),
-                radial-gradient(4px 4px at 280px 20px, rgba(60, 60, 60, 0.8), transparent);
+                radial-gradient(4px 4px at 7% 12%, rgba(0, 140, 255, 0.8), transparent),
+                radial-gradient(3px 3px at 18% 65%, rgba(30, 120, 255, 0.7), transparent),
+                radial-gradient(5px 5px at 29% 32%, rgba(0, 100, 255, 0.8), transparent),
+                radial-gradient(3px 3px at 41% 82%, rgba(30, 150, 255, 0.7), transparent),
+                radial-gradient(4px 4px at 53% 18%, rgba(0, 120, 255, 0.8), transparent),
+                radial-gradient(6px 6px at 64% 55%, rgba(0, 140, 255, 0.7), transparent),
+                radial-gradient(3px 3px at 73% 8%, rgba(30, 120, 255, 0.8), transparent),
+                radial-gradient(5px 5px at 82% 75%, rgba(0, 100, 255, 0.7), transparent),
+                radial-gradient(4px 4px at 94% 40%, rgba(30, 150, 255, 0.8), transparent);
 
-            background-size: 300px 200px;
+            background-size: 100% 100%;
             animation: snowfall 8s linear infinite;
         }
 
         @keyframes snowfall {
-            from {
-                background-position: 0 -200px;
+            0% {
+                transform: translateY(-100px);
             }
 
-            to {
-                background-position: 100px 800px;
+            100% {
+                transform: translateY(100vh);
             }
         }
 
