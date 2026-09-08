@@ -23,7 +23,7 @@
 
     body {
         /* background: linear-gradient(90deg, #C7C5F4, #776BCC); */
-        background-image: url('<?= base_url('assets/images/db.jpg'); ?>');
+        background-image: url('<?= base_url('assets/images/snow_db.jpg'); ?>');
         background-size: cover;
         background-position: center;
 
