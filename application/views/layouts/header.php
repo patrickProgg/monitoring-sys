@@ -417,14 +417,17 @@
         </ul>
         <ul class="navbar-nav ms-auto" style="margin-right:122px;">
 
-            <li class="nav-item">
-                <a href="javascript:void(0)" class="nav-link" id="snow-toggle" onclick="toggleSnow()">
+            <li class="nav-item d-flex align-items-center">
+                <div class="form-check form-switch d-flex align-items-center gap-2">
+                    <input class="form-check-input" type="checkbox" id="snow-toggle" onchange="toggleSnow()" checked>
 
-                    <i class="bx bx-snowflake"></i>
-                    <span class="text" id="snow-text">Snow: ON</span>
-
-                </a>
+                    <label class="form-check-label text-black" for="snow-toggle">
+                        <i class="bx bx-snowflake"></i>
+                        <span id="snow-text">Snow</span>
+                    </label>
+                </div>
             </li>
+
 
             <li class="nav-item">
                 <a href="<?= base_url('logout') ?>" class="nav-link logout text-danger" id="logout-link">
