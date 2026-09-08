@@ -29,49 +29,6 @@
 
     }
 
-    body::before,
-    body::after {
-        content: "";
-        position: fixed;
-        inset: -50px 0 0;
-        pointer-events: none;
-        z-index: 9999;
-        background-repeat: repeat;
-    }
-
-    body::before {
-        background-image:
-            radial-gradient(3px 3px at 20px 30px, #fff, transparent),
-            radial-gradient(4px 4px at 80px 80px, #fff, transparent),
-            radial-gradient(2px 2px at 150px 40px, #fff, transparent),
-            radial-gradient(5px 5px at 220px 100px, #fff, transparent);
-
-        background-size: 300px 200px;
-        animation: snowfall 8s linear infinite;
-        opacity: 0.8;
-    }
-
-    body::after {
-        background-image:
-            radial-gradient(6px 6px at 50px 50px, #fff, transparent),
-            radial-gradient(4px 4px at 180px 120px, #fff, transparent),
-            radial-gradient(3px 3px at 280px 30px, #fff, transparent);
-
-        background-size: 400px 300px;
-        animation: snowfall 15s linear infinite;
-        opacity: 0.5;
-    }
-
-    @keyframes snowfall {
-        from {
-            background-position: 0 -300px;
-        }
-
-        to {
-            background-position: 100px 1000px;
-        }
-    }
-
     ::-webkit-scrollbar {
         width: 0px;
         background: transparent;
@@ -359,6 +316,46 @@
         margin-top: 30px;
         text-align: center;
     }
+
+    #snow {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    .snowflake {
+        position: absolute;
+        top: -50px;
+        color: rgba(0, 140, 255, 0.8);
+        font-size: 20px;
+        user-select: none;
+        animation: fall linear infinite;
+        filter: drop-shadow(0 0 2px rgba(0, 100, 255, 0.4));
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-50px) translateX(0) rotate(0deg);
+        }
+
+        25% {
+            transform: translateY(25vh) translateX(30px) rotate(90deg);
+        }
+
+        50% {
+            transform: translateY(50vh) translateX(-30px) rotate(180deg);
+        }
+
+        75% {
+            transform: translateY(75vh) translateX(30px) rotate(270deg);
+        }
+
+        100% {
+            transform: translateY(110vh) translateX(-20px) rotate(360deg);
+        }
+    }
 </style>
 
 <head>
@@ -369,6 +366,7 @@
 </head>
 
 <div class="container">
+    <div id="snow"></div>
     <div class="login-container">
         <div class="glass-card">
 
@@ -483,5 +481,37 @@
             input.type = "password";
             icon.classList.replace("mdi-eye-off-outline", "mdi-eye-outline");
         }
+    }
+
+    const snow = document.getElementById('snow');
+
+    const flakes = ['❄', '❅', '❆'];
+
+    for (let i = 0; i < 60; i++) {
+        const flake = document.createElement('span');
+
+        flake.classList.add('snowflake');
+
+        // Random snowflake shape
+        flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+
+        // Random position
+        flake.style.left = Math.random() * 100 + 'vw';
+
+        // Random size
+        const size = Math.random() * 15 + 10;
+        flake.style.fontSize = size + 'px';
+
+        // Random speed
+        const duration = Math.random() * 8 + 6;
+        flake.style.animationDuration = duration + 's';
+
+        // Random starting delay
+        flake.style.animationDelay = -(Math.random() * duration) + 's';
+
+        // Random opacity
+        flake.style.opacity = Math.random() * 0.5 + 0.4;
+
+        snow.appendChild(flake);
     }
 </script>

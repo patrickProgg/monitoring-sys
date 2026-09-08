@@ -75,38 +75,6 @@
             overflow-x: hidden;
         }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: -50px 0 0;
-            pointer-events: none;
-            z-index: 9999;
-
-            background-image:
-                radial-gradient(4px 4px at 7% 12%, rgba(0, 140, 255, 0.8), transparent),
-                radial-gradient(3px 3px at 18% 65%, rgba(30, 120, 255, 0.7), transparent),
-                radial-gradient(5px 5px at 29% 32%, rgba(0, 100, 255, 0.8), transparent),
-                radial-gradient(3px 3px at 41% 82%, rgba(30, 150, 255, 0.7), transparent),
-                radial-gradient(4px 4px at 53% 18%, rgba(0, 120, 255, 0.8), transparent),
-                radial-gradient(6px 6px at 64% 55%, rgba(0, 140, 255, 0.7), transparent),
-                radial-gradient(3px 3px at 73% 8%, rgba(30, 120, 255, 0.8), transparent),
-                radial-gradient(5px 5px at 82% 75%, rgba(0, 100, 255, 0.7), transparent),
-                radial-gradient(4px 4px at 94% 40%, rgba(30, 150, 255, 0.8), transparent);
-
-            background-size: 100% 100%;
-            animation: snowfall 8s linear infinite;
-        }
-
-        @keyframes snowfall {
-            0% {
-                transform: translateY(-100px);
-            }
-
-            100% {
-                transform: translateY(100vh);
-            }
-        }
-
         .btn {
             font-size: 11px;
         }
@@ -356,11 +324,52 @@
         table.dataTable thead .sorting_desc {
             cursor: pointer;
         }
+
+        #snow {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -50px;
+            color: rgba(0, 140, 255, 0.8);
+            font-size: 20px;
+            user-select: none;
+            animation: fall linear infinite;
+            filter: drop-shadow(0 0 2px rgba(0, 100, 255, 0.4));
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-50px) translateX(0) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(25vh) translateX(30px) rotate(90deg);
+            }
+
+            50% {
+                transform: translateY(50vh) translateX(-30px) rotate(180deg);
+            }
+
+            75% {
+                transform: translateY(75vh) translateX(30px) rotate(270deg);
+            }
+
+            100% {
+                transform: translateY(110vh) translateX(-20px) rotate(360deg);
+            }
+        }
     </style>
 
 </head>
 
 <body>
+    <div id="snow"></div>
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm px-0" style="height: 50px; background-size: cover; background-position: center; background-repeat: no-repeat; background-image: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.7)), url('<?php echo base_url("assets/images/blue.png"); ?>'); width: 100%; position:
         fixed; top: 0; width: 100%; z-index: 1050; padding:0">
@@ -461,6 +470,38 @@
                 });
             });
         });
+
+        const snow = document.getElementById('snow');
+
+        const flakes = ['❄', '❅', '❆'];
+
+        for (let i = 0; i < 60; i++) {
+            const flake = document.createElement('span');
+
+            flake.classList.add('snowflake');
+
+            // Random snowflake shape
+            flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+
+            // Random position
+            flake.style.left = Math.random() * 100 + 'vw';
+
+            // Random size
+            const size = Math.random() * 15 + 10;
+            flake.style.fontSize = size + 'px';
+
+            // Random speed
+            const duration = Math.random() * 8 + 6;
+            flake.style.animationDuration = duration + 's';
+
+            // Random starting delay
+            flake.style.animationDelay = -(Math.random() * duration) + 's';
+
+            // Random opacity
+            flake.style.opacity = Math.random() * 0.5 + 0.4;
+
+            snow.appendChild(flake);
+        }
 
     </script>
 
