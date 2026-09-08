@@ -369,7 +369,7 @@
 </head>
 
 <body>
-    <div id="snow"></div>
+    <!-- <div id="snow"></div> -->
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm px-0" style="height: 50px; background-size: cover; background-position: center; background-repeat: no-repeat; background-image: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.7)), url('<?php echo base_url("assets/images/blue.png"); ?>'); width: 100%; position:
         fixed; top: 0; width: 100%; z-index: 1050; padding:0">
