@@ -418,14 +418,19 @@
         <ul class="navbar-nav ms-auto" style="margin-right:122px;">
 
             <li class="nav-item d-flex align-items-center">
-                <div class="form-check form-switch d-flex align-items-center gap-2">
-                    <input class="form-check-input" type="checkbox" id="snow-toggle" onchange="toggleSnow()" checked>
+                <a href="javascript:void(0)" class="nav-link d-flex align-items-center gap-2" id="snow-toggle"
+                    onclick="toggleSnow()">
 
-                    <label class="form-check-label text-black" for="snow-toggle">
-                        <i class="bx bx-snowflake"></i>
-                        <span id="snow-text">Snow</span>
-                    </label>
-                </div>
+                    <i class="bx bx-snowflake"></i>
+
+                    <span class="text" id="snow-text">Snow: ON</span>
+
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="snow-switch" checked
+                            onclick="event.stopPropagation(); toggleSnow();">
+                    </div>
+
+                </a>
             </li>
 
 
@@ -487,40 +492,36 @@
         function toggleSnow() {
             const snow = document.getElementById('snow');
             const text = document.getElementById('snow-text');
+            const toggle = document.getElementById('snow-switch');
 
-            const isEnabled = localStorage.getItem('snowEnabled') !== 'false';
-
-            if (isEnabled) {
-                // Turn OFF
-                snow.style.display = 'none';
-                text.textContent = 'Snow: OFF';
-
-                localStorage.setItem('snowEnabled', 'false');
-            } else {
-                // Turn ON
+            if (toggle.checked) {
                 snow.style.display = 'block';
                 text.textContent = 'Snow: ON';
-
                 localStorage.setItem('snowEnabled', 'true');
+            } else {
+                snow.style.display = 'none';
+                text.textContent = 'Snow: OFF';
+                localStorage.setItem('snowEnabled', 'false');
             }
         }
 
-        // Restore snow setting after every CI3 page reload
         document.addEventListener('DOMContentLoaded', function () {
-
             const snow = document.getElementById('snow');
             const text = document.getElementById('snow-text');
+            const toggle = document.getElementById('snow-switch');
 
-            const isEnabled = localStorage.getItem('snowEnabled') !== 'false';
+            const snowEnabled = localStorage.getItem('snowEnabled');
 
-            if (isEnabled) {
-                snow.style.display = 'block';
-                text.textContent = 'Snow: ON';
-            } else {
+            // Default = ON
+            if (snowEnabled === 'false') {
+                toggle.checked = false;
                 snow.style.display = 'none';
                 text.textContent = 'Snow: OFF';
+            } else {
+                toggle.checked = true;
+                snow.style.display = 'block';
+                text.textContent = 'Snow: ON';
             }
-
         });
 
         const snow = document.getElementById('snow');
