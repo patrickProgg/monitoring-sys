@@ -75,46 +75,31 @@
             overflow-x: hidden;
         }
 
-        body::before,
-        body::after {
+        body::before {
             content: "";
             position: fixed;
             inset: -50px 0 0;
             pointer-events: none;
             z-index: 9999;
-            background-repeat: repeat;
-        }
 
-        body::before {
             background-image:
-                radial-gradient(3px 3px at 20px 30px, #fff, transparent),
-                radial-gradient(4px 4px at 80px 80px, #fff, transparent),
-                radial-gradient(2px 2px at 150px 40px, #fff, transparent),
-                radial-gradient(5px 5px at 220px 100px, #fff, transparent);
+                radial-gradient(4px 4px at 20px 30px, rgba(80, 80, 80, 0.8), transparent),
+                radial-gradient(3px 3px at 80px 80px, rgba(100, 100, 100, 0.7), transparent),
+                radial-gradient(5px 5px at 150px 40px, rgba(70, 70, 70, 0.75), transparent),
+                radial-gradient(3px 3px at 220px 100px, rgba(90, 90, 90, 0.7), transparent),
+                radial-gradient(4px 4px at 280px 20px, rgba(60, 60, 60, 0.8), transparent);
 
             background-size: 300px 200px;
             animation: snowfall 8s linear infinite;
-            opacity: 0.8;
-        }
-
-        body::after {
-            background-image:
-                radial-gradient(6px 6px at 50px 50px, #fff, transparent),
-                radial-gradient(4px 4px at 180px 120px, #fff, transparent),
-                radial-gradient(3px 3px at 280px 30px, #fff, transparent);
-
-            background-size: 400px 300px;
-            animation: snowfall 15s linear infinite;
-            opacity: 0.5;
         }
 
         @keyframes snowfall {
             from {
-                background-position: 0 -300px;
+                background-position: 0 -200px;
             }
 
             to {
-                background-position: 100px 1000px;
+                background-position: 100px 800px;
             }
         }
 
