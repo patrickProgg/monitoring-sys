@@ -29,6 +29,40 @@
 
     }
 
+    body::before {
+        content: "";
+        position: fixed;
+        top: -10px;
+        left: 0;
+        width: 100%;
+        height: 110%;
+        pointer-events: none;
+        z-index: 9999;
+
+        background-image:
+            radial-gradient(4px 4px at 20px 30px, white, transparent),
+            radial-gradient(3px 3px at 40px 70px, white, transparent),
+            radial-gradient(5px 5px at 90px 40px, white, transparent),
+            radial-gradient(3px 3px at 130px 80px, white, transparent),
+            radial-gradient(4px 4px at 160px 20px, white, transparent),
+            radial-gradient(3px 3px at 200px 60px, white, transparent),
+            radial-gradient(5px 5px at 250px 90px, white, transparent);
+
+        background-size: 300px 150px;
+        animation: snow 10s linear infinite;
+        opacity: 0.8;
+    }
+
+    @keyframes snow {
+        0% {
+            background-position: 0 0;
+        }
+
+        100% {
+            background-position: 100px 600px;
+        }
+    }
+
     ::-webkit-scrollbar {
         width: 0px;
         background: transparent;
@@ -397,14 +431,14 @@
                 success: function (response) {
                     console.log(response);
 
-// -------------------------ibalik ra og mo bayad na--------------------
+                    // -------------------------ibalik ra og mo bayad na--------------------
                     if (response.success) {
                         Swal.close();
                         window.location.href = response.redirect;
                     } else {
                         Swal.fire("Error", response.message, "error");
                     }
-// -------------------------ibalik ra og mo bayad na--------------------
+                    // -------------------------ibalik ra og mo bayad na--------------------
 
                     // if (response.success) {
                     //     Swal.close(); // close loading
