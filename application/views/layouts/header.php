@@ -369,7 +369,7 @@
 </head>
 
 <body>
-    <!-- <div id="snow"></div> -->
+    <div id="snow"></div>
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm px-0" style="height: 50px; background-size: cover; background-position: center; background-repeat: no-repeat; background-image: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.7)), url('<?php echo base_url("assets/images/blue.png"); ?>'); width: 100%; position:
         fixed; top: 0; width: 100%; z-index: 1050; padding:0">
@@ -416,6 +416,16 @@
             </li>
         </ul>
         <ul class="navbar-nav ms-auto" style="margin-right:122px;">
+
+            <li class="nav-item">
+                <a href="javascript:void(0)" class="nav-link" id="snow-toggle" onclick="toggleSnow()">
+
+                    <i class="bx bx-snowflake"></i>
+                    <span class="text" id="snow-text">Snow: ON</span>
+
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a href="<?= base_url('logout') ?>" class="nav-link logout text-danger" id="logout-link">
                     <i class="bx bx-log-out"></i>
@@ -469,6 +479,45 @@
                     }
                 });
             });
+        });
+
+        function toggleSnow() {
+            const snow = document.getElementById('snow');
+            const text = document.getElementById('snow-text');
+
+            const isEnabled = localStorage.getItem('snowEnabled') !== 'false';
+
+            if (isEnabled) {
+                // Turn OFF
+                snow.style.display = 'none';
+                text.textContent = 'Snow: OFF';
+
+                localStorage.setItem('snowEnabled', 'false');
+            } else {
+                // Turn ON
+                snow.style.display = 'block';
+                text.textContent = 'Snow: ON';
+
+                localStorage.setItem('snowEnabled', 'true');
+            }
+        }
+
+        // Restore snow setting after every CI3 page reload
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const snow = document.getElementById('snow');
+            const text = document.getElementById('snow-text');
+
+            const isEnabled = localStorage.getItem('snowEnabled') !== 'false';
+
+            if (isEnabled) {
+                snow.style.display = 'block';
+                text.textContent = 'Snow: ON';
+            } else {
+                snow.style.display = 'none';
+                text.textContent = 'Snow: OFF';
+            }
+
         });
 
         const snow = document.getElementById('snow');
