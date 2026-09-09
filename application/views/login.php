@@ -356,6 +356,37 @@
             transform: translateY(110vh) translateX(-20px) rotate(360deg);
         }
     }
+
+    #cursor-dust {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 10000;
+    }
+
+    .cursor-particle {
+        position: fixed;
+        pointer-events: none;
+        font-size: 10px;
+        color: #ffffff;
+        text-shadow:
+            0 0 5px #00aaff,
+            0 0 10px #008cff;
+        animation: christmasDust 0.8s ease-out forwards;
+    }
+
+    @keyframes christmasDust {
+        0% {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+
+        100% {
+            opacity: 0;
+            transform: translate(var(--move-x),
+                    var(--move-y)) scale(0);
+        }
+    }
 </style>
 
 <head>
@@ -367,6 +398,7 @@
 
 <div class="container">
     <div id="snow"></div>
+    <div id="cursor-dust"></div>
     <div class="login-container">
         <div class="glass-card">
 
@@ -514,4 +546,77 @@
 
         snow.appendChild(flake);
     }
+
+    const cursorDust = document.getElementById('cursor-dust');
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+
+    let lastMouseMove = Date.now();
+
+    const particles = ['❄', '✦', '✧', '•', '❅'];
+
+
+    // Track mouse
+    document.addEventListener('mousemove', function (e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        lastMouseMove = Date.now();
+
+        createCursorParticle(mouseX, mouseY);
+    });
+
+
+    // Create particle
+    function createCursorParticle(x, y) {
+
+        const particle = document.createElement('span');
+
+        particle.classList.add('cursor-particle');
+
+        particle.textContent =
+            particles[Math.floor(Math.random() * particles.length)];
+
+        // Random position around cursor
+        particle.style.left =
+            (x + Math.random() * 20 - 10) + 'px';
+
+        particle.style.top =
+            (y + Math.random() * 20 - 10) + 'px';
+
+        // Random movement
+        particle.style.setProperty(
+            '--move-x',
+            (Math.random() * 60 - 30) + 'px'
+        );
+
+        particle.style.setProperty(
+            '--move-y',
+            (Math.random() * -60 - 10) + 'px'
+        );
+
+        // Random size
+        particle.style.fontSize =
+            (Math.random() * 8 + 6) + 'px';
+
+        // Random animation speed
+        particle.style.animationDuration =
+            (Math.random() * 0.6 + 0.6) + 's';
+
+        cursorDust.appendChild(particle);
+
+        setTimeout(() => {
+            particle.remove();
+        }, 1500);
+    }
+
+
+    // Idle effect
+    setInterval(function () {
+
+        // Create particles even when mouse isn't moving
+        createCursorParticle(mouseX, mouseY);
+
+    }, 180);
 </script>
