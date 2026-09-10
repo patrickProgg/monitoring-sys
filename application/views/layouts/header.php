@@ -13,6 +13,8 @@
     <link href="<?php echo base_url(); ?>assets/css/daterangepicker.min.css" rel="stylesheet" />
     <link href="<?php echo base_url(); ?>assets/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="<?php echo base_url(); ?>assets/css/material.icon.css" rel="stylesheet" />
+    <link href="<?php echo base_url('public/css/styles.css'); ?>" rel="stylesheet">
+
 
     <script src="<?php echo base_url(); ?>assets/js/jquery.min.js"></script>
     <script src="<?php echo base_url(); ?>assets/js/jquery.dataTables.min.js"></script>
@@ -77,6 +79,54 @@
 
         .btn {
             font-size: 11px;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            isolation: isolate;
+        }
+
+        .btn.christmas-effects::before {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            pointer-events: none;
+            z-index: 1;
+
+            /* border: 1px solid rgba(220, 248, 255, 0.9); */
+            border-radius: inherit;
+
+            box-shadow:
+                inset 0 0 3px rgba(255, 255, 255, 0.5),
+                inset 0 0 6px rgba(180, 230, 255, 0.35);
+
+            /* Your snow/ice */
+            background:
+                radial-gradient(ellipse 14px 9px at 8% 100%,
+                    #fff 0%,
+                    #fff 65%,
+                    transparent 70%),
+                radial-gradient(ellipse 18px 10px at 23% 100%,
+                    #fff 0%,
+                    #fff 65%,
+                    transparent 70%),
+                radial-gradient(ellipse 15px 8px at 40% 100%,
+                    #fff 0%,
+                    #fff 65%,
+                    transparent 70%),
+                radial-gradient(ellipse 20px 10px at 58% 100%,
+                    #fff 0%,
+                    #fff 65%,
+                    transparent 70%),
+                radial-gradient(ellipse 16px 9px at 76% 100%,
+                    #fff 0%,
+                    #fff 65%,
+                    transparent 70%),
+                radial-gradient(ellipse 19px 10px at 92% 100%,
+                    #fff 0%,
+                    #fff 65%,
+                    transparent 70%);
+
+            filter: drop-shadow(0 -2px 2px rgba(190, 230, 250, 0.7));
         }
 
         #content main {
@@ -685,6 +735,61 @@
                 opacity: 1;
             }
         }
+
+        .ice-crack path {
+            fill: none;
+
+            /* Much clearer */
+            stroke: rgba(255, 255, 255, 0.95);
+
+            /* Thicker */
+            stroke-width: 2.2px;
+
+            stroke-linecap: round;
+            stroke-linejoin: round;
+
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+
+            /* Strong ice glow */
+            filter:
+                drop-shadow(0 0 2px rgba(255, 255, 255, 1)) drop-shadow(0 0 5px rgba(180, 230, 255, 0.95)) drop-shadow(0 0 10px rgba(150, 220, 255, 0.6));
+
+            animation:
+                iceCrackGrow 3s ease-out forwards;
+        }
+
+        @keyframes iceCrackGrow {
+
+            0% {
+                stroke-dashoffset: 1;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                stroke-dashoffset: 0;
+                opacity: 1;
+            }
+        }
+
+        .ice-crack {
+            position: absolute;
+
+            width: 150px;
+            height: 350px;
+
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .main-ice-crack {
+            stroke-width: 2.8px !important;
+            stroke: rgba(255, 255, 255, 1) !important;
+        }
     </style>
 
 </head>
@@ -695,9 +800,13 @@
     <div id="snow"></div>
     <div id="cursor-dust"></div>
     <canvas id="cursor-trail"></canvas>
+
     <!-- Navbar Start -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm px-0" style="height: 50px; background-size: cover; background-position: center; background-repeat: no-repeat; background-image: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.7)), url('<?php echo base_url("assets/images/blue.png"); ?>'); width: 100%; position:
         fixed; top: 0; width: 100%; z-index: 1050; padding:0">
+        <!-- <nav class="navbar navbar-expand-lg navbar-dark shadow-sm px-0"
+        style="height: 50px; background-color: #87CEEB; width: 100%; position: fixed; top: 0; z-index: 1050; padding: 0"> -->
+
         <a class="navbar-brand d-flex align-items-center" style="margin-left:129px;" href="<?= base_url(); ?>dashboard"
             style="height: 100%;">
             <img src="<?= base_url(); ?>assets/images/loan.png" alt="Logo" style="height: 30px;">
@@ -740,6 +849,7 @@
                 </a>
             </li>
         </ul>
+
         <ul class="navbar-nav ms-auto" style="margin-right:122px;">
 
             <li class="nav-item d-flex align-items-center">
@@ -758,7 +868,6 @@
                 </a>
             </li>
 
-
             <li class="nav-item">
                 <a href="<?= base_url('logout') ?>" class="nav-link logout text-danger" id="logout-link">
                     <i class="bx bx-log-out"></i>
@@ -766,9 +875,9 @@
                 </a>
             </li>
         </ul>
+
     </nav>
     <!-- Navbar End -->
-
     <script>
         feather.replace();
 
@@ -805,7 +914,6 @@
                                 }
                             }
                         });
-
                         setTimeout(() => {
                             window.location.href = logoutLink.href;
                         }, 500);
@@ -2177,6 +2285,20 @@
 
                     iceOverlay.style.opacity = '1';
 
+                    for (let i = 0; i < 10; i++) {
+
+                        setTimeout(function () {
+
+                            // Make sure effects are still ON
+                            if (!toggle.checked) {
+                                return;
+                            }
+
+                            createIceCrack();
+
+                        }, i * 600);
+                    }
+
 
                     // =================================
                     // START FROST
@@ -2190,6 +2312,7 @@
 
                 }, FROST_IDLE_TIME);
         }
+
         function growFrost() {
 
             const toggle =
@@ -2444,6 +2567,256 @@
             }
         }
 
+        function createIceCrack() {
+
+            const iceOverlay =
+                document.getElementById('ice-overlay');
+
+            if (!iceOverlay) return;
+
+            const crack =
+                document.createElement('div');
+
+            crack.className = 'ice-crack';
+
+            const svgNS =
+                'http://www.w3.org/2000/svg';
+
+            const svg =
+                document.createElementNS(
+                    svgNS,
+                    'svg'
+                );
+
+            svg.setAttribute(
+                'viewBox',
+                '0 0 300 300'
+            );
+
+
+            // =========================// RANDOM EDGE
+            // =========================
+
+            const edge = Math.floor(Math.random() * 4);
+
+            let startX;
+            let startY;
+
+            if (edge === 0) {
+                // TOP
+                startX = 20 + Math.random() * 260;
+                startY = -5;
+
+                crack.style.left = `${startX - 150}px`;
+                crack.style.top = `-10px`;
+
+            } else if (edge === 1) {
+                // RIGHT
+                startX = 305;
+                startY = 20 + Math.random() * 260;
+
+                crack.style.left = `calc(100% - 140px)`;
+                crack.style.top = `${startY - 150}px`;
+
+            } else if (edge === 2) {
+                // BOTTOM
+                startX = 20 + Math.random() * 260;
+                startY = 305;
+
+                crack.style.left = `${startX - 150}px`;
+                crack.style.top = `calc(100% - 140px)`;
+
+            } else {
+                // LEFT
+                startX = -5;
+                startY = 20 + Math.random() * 260;
+
+                crack.style.left = `-10px`;
+                crack.style.top = `${startY - 150}px`;
+            }
+
+
+            // =========================
+            // MAIN CRACK
+            // =========================
+
+            // =================================
+            // REALISTIC ICE CRACK
+            // =================================
+
+            const path =
+                document.createElementNS(svgNS, 'path');
+
+            path.classList.add('main-ice-crack');
+
+            let x = startX;
+            let y = startY;
+
+            let d = `M ${x} ${y}`;
+
+            // Direction toward the inside
+            let angle;
+
+            if (edge === 0) {
+                // TOP → DOWN
+                angle = Math.PI / 2;
+
+            } else if (edge === 1) {
+                // RIGHT → LEFT
+                angle = Math.PI;
+
+            } else if (edge === 2) {
+                // BOTTOM → UP
+                angle = -Math.PI / 2;
+
+            } else {
+                // LEFT → RIGHT
+                angle = 0;
+            }
+
+            // =================================
+            // MAIN CRACK
+            // =================================
+
+            const points = [];
+
+            points.push({
+                x: x,
+                y: y
+            });
+
+            const segments =
+                12 + Math.floor(Math.random() * 7);
+
+            for (let i = 0; i < segments; i++) {
+
+                // Small natural direction change
+                angle +=
+                    (Math.random() - 0.5) * 0.28;
+
+                // Longer near edge,
+                // slightly shorter toward the end
+                const progress = i / segments;
+
+                const length =
+                    18 -
+                    progress * 5 +
+                    Math.random() * 8;
+
+                x += Math.cos(angle) * length;
+                y += Math.sin(angle) * length;
+
+                // Keep inside SVG
+                x = Math.max(-20, Math.min(320, x));
+                y = Math.max(-20, Math.min(320, y));
+
+                points.push({
+                    x: x,
+                    y: y
+                });
+
+                d += ` L ${x} ${y}`;
+            }
+
+            path.setAttribute('d', d);
+            path.setAttribute('pathLength', '1');
+
+            svg.appendChild(path);
+
+
+            // =================================
+            // NATURAL BRANCHES
+            // =================================
+
+            for (let i = 2; i < points.length - 2; i++) {
+
+                // Don't branch at every point
+                if (Math.random() > 0.45) {
+                    continue;
+                }
+
+                const point = points[i];
+
+                // Branch becomes smaller farther inward
+                const progress =
+                    i / points.length;
+
+                const branchLength =
+                    25 -
+                    progress * 12 +
+                    Math.random() * 8;
+
+                // Branch angle
+                const side =
+                    Math.random() > 0.5 ? 1 : -1;
+
+                const branchAngle =
+                    angle +
+                    side *
+                    (35 + Math.random() * 25) *
+                    Math.PI / 180;
+
+                let bx = point.x;
+                let by = point.y;
+
+                let branchPath =
+                    `M ${bx} ${by}`;
+
+                // Branch has several segments too
+                const branchSegments =
+                    2 + Math.floor(Math.random() * 2);
+
+                for (let j = 0; j < branchSegments; j++) {
+
+                    const branchTurn =
+                        (Math.random() - 0.5) * 0.3;
+
+                    const currentAngle =
+                        branchAngle + branchTurn;
+
+                    const segmentLength =
+                        branchLength /
+                        branchSegments;
+
+                    bx +=
+                        Math.cos(currentAngle) *
+                        segmentLength;
+
+                    by +=
+                        Math.sin(currentAngle) *
+                        segmentLength;
+
+                    branchPath +=
+                        ` L ${bx} ${by}`;
+                }
+
+                const branch =
+                    document.createElementNS(
+                        svgNS,
+                        'path'
+                    );
+
+                branch.setAttribute(
+                    'd',
+                    branchPath
+                );
+
+                branch.setAttribute(
+                    'pathLength',
+                    '1'
+                );
+
+                branch.style.animationDelay =
+                    `${0.4 + i * 0.08}s`;
+
+                svg.appendChild(branch);
+            }
+
+
+            crack.appendChild(svg);
+
+            iceOverlay.appendChild(crack);
+        }
     </script>
 
     <div class="main-content">
